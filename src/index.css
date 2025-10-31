@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 🌈 Custom thin scrollbar for habit list */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(99, 102, 241, 0.6); /* indigo-400 */
+  border-radius: 10px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #f3f4f6; /* gray-100 */
+}
