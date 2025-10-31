@@ -44,7 +44,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  // ✅ Sign Up Handler (saves name to Firestore)
+  // ✅ Sign Up Handler
   const handleSignup = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -57,10 +57,8 @@ const Auth = () => {
       );
       const user = userCredential.user;
 
-      // Save display name in Firebase Auth
       await updateProfile(user, { displayName: signUpName });
 
-      // Save user info in Firestore
       await setDoc(doc(db, "users", user.uid), {
         name: signUpName,
         funds: 0,
@@ -86,23 +84,21 @@ const Auth = () => {
       setMessage("✅ Logged in successfully!");
       navigate("/dashboard");
     } catch (error) {
-      setMessage("❌ Invalid Credentials" );
+      setMessage("❌ Invalid Credentials");
     }
     setLoading(false);
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-gray-200 to-indigo-200 p-4">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-gray-200 to-indigo-200 p-2 sm:p-4">
       <div
         className={`relative bg-white rounded-3xl shadow-lg overflow-hidden w-full max-w-md sm:max-w-2xl min-h-[520px] flex flex-col sm:flex-row transition-all duration-700`}
       >
         {/* ---------------- SIGN IN FORM ---------------- */}
         <div
-          className={`w-full sm:w-1/2 flex flex-col items-center justify-center px-8 py-10 transition-all duration-700 ${
-            isActive
-              ? "sm:translate-x-full sm:opacity-0 sm:z-0"
-              : "sm:translate-x-0 sm:opacity-100 sm:z-10"
-          } ${isActive ? "order-2 sm:order-none" : "order-1"}`}
+          className={`w-full sm:w-1/2 flex flex-col items-center justify-center px-8 py-10 transition-all duration-700
+            ${isActive ? "hidden sm:flex sm:translate-x-full sm:opacity-0 sm:z-0" : "flex sm:translate-x-0 sm:opacity-100 sm:z-10"}
+          `}
         >
           <form
             onSubmit={handleSignin}
@@ -153,11 +149,9 @@ const Auth = () => {
 
         {/* ---------------- SIGN UP FORM ---------------- */}
         <div
-          className={`w-full sm:w-1/2 flex flex-col items-center justify-center px-8 py-10 transition-all duration-700 ${
-            isActive
-              ? "sm:translate-x-0 sm:opacity-100 sm:z-10"
-              : "sm:-translate-x-full sm:opacity-0 sm:z-0"
-          } ${isActive ? "order-1 sm:order-none" : "order-2"}`}
+          className={`w-full sm:w-1/2 flex flex-col items-center justify-center px-8 py-10 transition-all duration-700
+            ${isActive ? "flex sm:translate-x-0 sm:opacity-100 sm:z-10" : "hidden sm:-translate-x-full sm:opacity-0 sm:z-0"}
+          `}
         >
           <form
             onSubmit={handleSignup}
@@ -207,13 +201,11 @@ const Auth = () => {
           </form>
         </div>
 
-        {/* Overlay */}
+        {/* Overlay for desktop */}
         <div
-          className={`hidden sm:flex absolute top-0 left-1/2 w-1/2 h-full transition-all duration-700 rounded-[150px_0_0_100px] overflow-hidden z-20 bg-gradient-to-r from-indigo-500 to-teal-500 ${
-            isActive
-              ? "-translate-x-full rounded-[0_150px_100px_0]"
-              : "translate-x-0"
-          }`}
+          className={`hidden sm:flex absolute top-0 left-1/2 w-1/2 h-full transition-all duration-700 rounded-[150px_0_0_100px] overflow-hidden z-20 bg-gradient-to-r from-indigo-500 to-teal-500
+            ${isActive ? "-translate-x-full rounded-[0_150px_100px_0]" : "translate-x-0"}
+          `}
         >
           <div className="text-white h-full w-full flex flex-col justify-center items-center px-8 text-center transition-all duration-700">
             {!isActive ? (
@@ -244,6 +236,16 @@ const Auth = () => {
               </>
             )}
           </div>
+        </div>
+
+        {/* Mobile toggle button */}
+        <div className="sm:hidden absolute top-3 right-3 z-30">
+          <button
+            onClick={() => setIsActive(!isActive)}
+            className="bg-teal-600 text-white text-xs font-semibold px-4 py-2 rounded-md"
+          >
+            {isActive ? "Sign In" : "Sign Up"}
+          </button>
         </div>
       </div>
 
