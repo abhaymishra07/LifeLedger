@@ -5,6 +5,7 @@ import Dashboard from "./components/dashboard";
 import HabitPage from "./components/HabitPage";
 import Fund from "./components/fund";
 import Stocks from "./components/stocks";
+import Documents from "./components/documents";
 import ProtectedRoute from "./components/protectedRoute";
 
 function App() {

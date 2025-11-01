@@ -12,13 +12,25 @@ import {
 } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import HabitProgressChart from "./HabitProgressChart";
+import HabitOverviewChart from "./HabitOverviewChart";
 
 const HabitPage = () => {
   const [user, setUser] = useState(null);
   const [habits, setHabits] = useState([]);
   const [habitName, setHabitName] = useState("");
 
-  // Get today's date in YYYY-MM-DD format
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  // 🗓️ Get start of the week (Sunday)
+  const getWeekStart = () => {
+    const now = new Date();
+    const day = now.getDay();
+    const diff = now.getDate() - day;
+    const sunday = new Date(now.setDate(diff));
+    sunday.setHours(0, 0, 0, 0);
+    return sunday;
+  };
+
   const getToday = () => new Date().toISOString().split("T")[0];
 
   // 🔐 Watch for logged-in user
@@ -28,7 +40,6 @@ const HabitPage = () => {
         setUser(currentUser);
         const q = query(collection(db, "habits"), where("uid", "==", currentUser.uid));
 
-        // Live update listener
         const unsubscribe = onSnapshot(q, (snapshot) => {
           const data = snapshot.docs.map((doc) => ({
             id: doc.id,
@@ -37,9 +48,7 @@ const HabitPage = () => {
           setHabits(data);
         });
 
-        // After setting up listener, run a one-time reset check
         await resetOldHabits(currentUser.uid);
-
         return () => unsubscribe();
       } else {
         setUser(null);
@@ -49,7 +58,7 @@ const HabitPage = () => {
     return () => unsubscribeAuth();
   }, []);
 
-  // 🧠 Reset old habits (called once per login/day)
+  // 🧠 Reset old habits
   const resetOldHabits = async (uid) => {
     const today = getToday();
     const q = query(collection(db, "habits"), where("uid", "==", uid));
@@ -59,7 +68,6 @@ const HabitPage = () => {
       const data = docSnap.data();
       const habitRef = doc(db, "habits", docSnap.id);
 
-      // If old habit, reset it
       if (data.date < today) {
         await updateDoc(habitRef, {
           completed: false,
@@ -69,7 +77,7 @@ const HabitPage = () => {
     }
   };
 
-  // 🟢 Add new habit
+  // ➕ Add a new habit
   const handleAddHabit = async (e) => {
     e.preventDefault();
     if (!habitName || !user) return alert("Please enter a habit name");
@@ -80,6 +88,8 @@ const HabitPage = () => {
         date: getToday(),
         completed: false,
         uid: user.uid,
+        week: getWeekStart().toISOString().split("T")[0],
+        days: Array(7).fill(false),
       });
 
       setHabitName("");
@@ -89,10 +99,16 @@ const HabitPage = () => {
     }
   };
 
-  // 🔄 Toggle completion
-  const toggleHabitCompletion = async (habitId, currentStatus) => {
-    const habitRef = doc(db, "habits", habitId);
-    await updateDoc(habitRef, { completed: !currentStatus });
+  // ✅ Toggle day done/undone
+  const toggleDay = async (habitId, index, current) => {
+    try {
+      const habitRef = doc(db, "habits", habitId);
+      const updatedDays = Array.isArray(current) ? [...current] : Array(7).fill(false);
+      updatedDays[index] = !updatedDays[index];
+      await updateDoc(habitRef, { days: updatedDays });
+    } catch (err) {
+      console.error("Error updating habit:", err);
+    }
   };
 
   // ❌ Delete habit
@@ -103,8 +119,8 @@ const HabitPage = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <h2 className="text-2xl font-semibold text-center mb-4">
+    <div className="p-4 sm:p-6 space-y-6 min-h-screen bg-gray-50">
+      <h2 className="text-xl sm:text-2xl font-semibold text-center mb-4">
         🧘 Habit Tracker
       </h2>
 
@@ -118,68 +134,87 @@ const HabitPage = () => {
           placeholder="Enter habit name"
           value={habitName}
           onChange={(e) => setHabitName(e.target.value)}
-          className="border p-2 rounded-lg w-64"
+          className="border p-2 rounded-lg w-full sm:w-64"
         />
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 w-full sm:w-auto"
         >
           Add Habit
         </button>
       </form>
 
-      {/* 📋 Habit List (Scrollable) */}
-<div className="max-w-4xl mx-auto mt-6 h-[400px] overflow-y-auto pr-2">
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-    {habits.length === 0 ? (
-      <p className="text-center text-gray-500 col-span-full">
-        No habits yet. Add one!
-      </p>
-    ) : (
-      habits.map((habit) => (
-        <div
-          key={habit.id}
-          className="flex flex-col justify-between p-4 bg-white rounded-xl shadow hover:shadow-md transition"
-        >
-          <div>
-            <p
-              className={`font-medium text-lg ${
-                habit.completed ? "line-through text-green-600" : ""
-              }`}
-            >
-              {habit.name}
-            </p>
-            <small className="text-gray-500">Date: {habit.date}</small>
-          </div>
-
-          <div className="flex justify-between mt-3">
-            <button
-              onClick={() => toggleHabitCompletion(habit.id, habit.completed)}
-              className={`px-3 py-1 rounded-lg text-sm font-medium ${
-                habit.completed
-                  ? "bg-green-500 text-white"
-                  : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-              }`}
-            >
-              {habit.completed ? "Done" : "Mark Done"}
-            </button>
-            <button
-              onClick={() => deleteHabit(habit.id)}
-              className="bg-red-500 text-white px-3 py-1 rounded-lg text-sm"
-            >
-              Delete
-            </button>
-          </div>
+      {/* 📋 Habit Table */}
+      <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+        {/* Scrollable only on table part */}
+        <div className="overflow-x-auto overflow-y-auto max-h-[400px] relative">
+          <table className="min-w-[700px] w-full border-collapse text-sm sm:text-base">
+            <thead className="bg-gray-100 sticky top-0 z-[5]">
+              <tr>
+                <th className="px-3 sm:px-4 py-3 text-left font-semibold bg-white sticky left-0 z-[2]">
+                  Habit
+                </th>
+                {days.map((day, idx) => (
+                  <th key={idx} className="px-2 sm:px-4 py-3 font-semibold text-center">
+                    {day}
+                  </th>
+                ))}
+                <th className="px-3 sm:px-4 py-3 text-center font-semibold">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {habits.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={days.length + 2}
+                    className="text-center py-4 text-gray-500"
+                  >
+                    No habits yet. Add one!
+                  </td>
+                </tr>
+              ) : (
+                habits.map((habit) => (
+                  <tr key={habit.id} className="border-b hover:bg-gray-50">
+                    <td
+                      className="px-3 sm:px-4 py-3 font-medium sticky left-0 bg-white z-[1]"
+                      style={{ pointerEvents: "auto" }}
+                    >
+                      {habit.name}
+                    </td>
+                    {days.map((day, idx) => (
+                      <td key={idx} className="text-center px-2 sm:px-4 py-2">
+                        <button
+                          onClick={() => toggleDay(habit.id, idx, habit.days)}
+                          className={`px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-200 ${
+                            habit.days?.[idx]
+                              ? "bg-green-500 text-white"
+                              : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                          }`}
+                        >
+                          {habit.days?.[idx] ? "Done" : "Mark"}
+                        </button>
+                      </td>
+                    ))}
+                    <td className="text-center px-2 sm:px-4 py-2">
+                      <button
+                        onClick={() => deleteHabit(habit.id)}
+                        className="bg-red-500 text-white px-3 py-1 rounded-lg text-xs sm:text-sm"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
-      ))
-    )}
-  </div>
-</div>
-
+      </div>
 
       {/* 📊 Chart Section */}
-      <div className="max-w-4xl mx-auto mt-10">
+      <div className="max-w-6xl mx-auto mt-10 space-y-10">
         <HabitProgressChart habits={habits} />
+        <HabitOverviewChart habits={habits} />
       </div>
     </div>
   );

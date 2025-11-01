@@ -109,6 +109,15 @@ const Dashboard = () => {
           change="+1.2%"
           onClick={() => navigate("/stocks")}
         />
+
+        {/* Documents Card */}
+        {/* <DashboardCard
+          title="Documents"
+          value={`0 Added`}
+          change="NA"
+          onClick={() => navigate("/documents")}
+        /> */}
+
       </main>
     </div>
   );
