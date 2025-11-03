@@ -6,6 +6,7 @@ import HabitPage from "./components/HabitPage";
 import Fund from "./components/fund";
 import Stocks from "./components/stocks";
 import Documents from "./components/documents";
+import DailyTask from "./components/dailytask";
 import ProtectedRoute from "./components/protectedRoute";
 
 function App() {
@@ -44,6 +45,22 @@ function App() {
           element={
             <ProtectedRoute>
               <Stocks />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dailytask"
+          element={
+            <ProtectedRoute>
+              <DailyTask />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/documents"
+          element={
+            <ProtectedRoute>
+              <Documents />
             </ProtectedRoute>
           }
         />

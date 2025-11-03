@@ -1,163 +1,217 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { Upload, Link2, Trash2, FileText } from "lucide-react";
 
-const validateDriveURL = (url) =>
-  /^https:\/\/drive\.google\.com\/[a-zA-Z0-9\/\-_?=]+$/.test(url);
+const AddDocument = () => {
+  const [documents, setDocuments] = useState([]);
+  const [file, setFile] = useState(null);
+  const [docName, setDocName] = useState("");
+  const [link, setLink] = useState("");
+  const [showUploadInput, setShowUploadInput] = useState(false);
+  const [showLinkInput, setShowLinkInput] = useState(false);
+  const [docToDelete, setDocToDelete] = useState(null);
 
-function Documents() {
-  const [form, setForm] = useState({ name: "", link: "" });
-  const [docs, setDocs] = useState(() =>
-    JSON.parse(localStorage.getItem("docs") || "[]")
-  );
-  const [error, setError] = useState("");
-  const [darkMode, setDarkMode] = useState(() => {
-    // Load theme preference from localStorage
-    return localStorage.getItem("theme") === "dark";
-  });
-
-  // Persist docs in localStorage
-  useEffect(() => {
-    localStorage.setItem("docs", JSON.stringify(docs));
-  }, [docs]);
-
-  // Handle theme persistence
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
-  }, [darkMode]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError("");
-
-    if (!form.name || !form.link) {
-      setError("All fields are required.");
-      return;
-    }
-
-    if (!validateDriveURL(form.link)) {
-      setError("Invalid Google Drive link.");
-      return;
-    }
-
-    setDocs([...docs, { ...form }]);
-    setForm({ name: "", link: "" });
+  const handleFileUpload = (e) => {
+    const uploadedFile = e.target.files[0];
+    if (uploadedFile) setFile(uploadedFile);
   };
 
-  const handleDelete = (index) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to delete "${docs[index].name}"?`
-    );
-    if (!confirmed) return;
+  const addFileDocument = () => {
+    if (!file || docName.trim() === "") return;
+    const newDoc = {
+      id: Date.now(),
+      name: docName,
+      type: "file",
+      fileName: file.name,
+      url: URL.createObjectURL(file),
+    };
+    setDocuments([...documents, newDoc]);
+    setFile(null);
+    setDocName("");
+    setShowUploadInput(false);
+  };
 
-    const updatedDocs = docs.filter((_, i) => i !== index);
-    setDocs(updatedDocs);
+  const addLinkDocument = () => {
+    if (!link.trim() || docName.trim() === "") return;
+    const newDoc = {
+      id: Date.now(),
+      name: docName,
+      type: "link",
+      url: link,
+    };
+    setDocuments([...documents, newDoc]);
+    setLink("");
+    setDocName("");
+    setShowLinkInput(false);
+  };
+
+  const confirmDelete = (id) => setDocToDelete(id);
+
+  const deleteDocument = () => {
+    const updatedDocs = documents.filter((doc) => doc.id !== docToDelete);
+    setDocuments(updatedDocs);
+    setDocToDelete(null);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center py-12 px-4 transition-colors duration-500">
-      <div className="w-full max-w-3xl bg-white dark:bg-gray-800 shadow-xl rounded-3xl p-8 ring-1 ring-gray-200 dark:ring-gray-700 transition-colors duration-500">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 tracking-tight">
-            📂 My Documents
-          </h2>
+    <div className="min-h-screen flex flex-col items-center justify-start px-6 py-10 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 transition-colors duration-700">
+      {/* Main Container */}
+      <div className="w-full max-w-4xl border border-gray-300 dark:border-gray-700 rounded-3xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-lg shadow-xl p-8 transition-all">
 
-          {/* Theme Toggle Button */}
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-300 shadow-sm"
-          >
-            {darkMode ? (
-              <>
-                🌞 <span className="hidden sm:inline">Light Mode</span>
-              </>
-            ) : (
-              <>
-                🌙 <span className="hidden sm:inline">Dark Mode</span>
-              </>
-            )}
-          </button>
-        </div>
+        {/* Header */}
+        <header className="flex justify-between items-center w-full mb-8 border-b border-gray-300 dark:border-gray-700 pb-4">
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 tracking-tight">
+            📄 Add Document
+          </h1>
+          <div className="flex gap-3">
+            {/* <button
+              onClick={() => {
+                setShowUploadInput(!showUploadInput);
+                setShowLinkInput(false);
+              }}
+              className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-5 py-2.5 rounded-xl shadow-md transition transform hover:scale-105"
+            >
+              <Upload className="w-5 h-5" />
+              Upload File
+            </button> */}
 
-        {/* Form Section */}
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8"
-        >
-          <input
-            name="name"
-            placeholder="Document Name"
-            value={form.name}
-            onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-            required
-            className="flex-1 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-2.5 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
-          />
-          <input
-            name="link"
-            placeholder="Google Drive Link"
-            value={form.link}
-            onChange={(e) => setForm((f) => ({ ...f, link: e.target.value }))}
-            required
-            className="flex-1 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-2.5 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
-          />
-          <button
-            type="submit"
-            className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-6 py-2.5 font-medium shadow-sm hover:shadow-md transition-all duration-300"
-          >
-            + Add
-          </button>
-        </form>
+            <button
+              onClick={() => {
+                setShowLinkInput(!showLinkInput);
+                setShowUploadInput(false);
+              }}
+              className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-5 py-2.5 rounded-xl shadow-md transition transform hover:scale-105"
+            >
+              <Link2 className="w-5 h-5" />
+              Add Link
+            </button>
+          </div>
+        </header>
 
-        {error && (
-          <div className="text-red-600 dark:text-red-400 mb-4 text-sm font-medium">
-            {error}
+        {/* Upload Section */}
+        {showUploadInput && (
+          <div className="mb-6 space-y-4 animate-fadeIn">
+            <input
+              type="text"
+              value={docName}
+              onChange={(e) => setDocName(e.target.value)}
+              placeholder="Enter document name..."
+              className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            />
+            <input
+              type="file"
+              onChange={handleFileUpload}
+              className="block w-full text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-3 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            />
+            <button
+              onClick={addFileDocument}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl shadow transition transform hover:scale-105"
+            >
+              Add Document
+            </button>
+          </div>
+        )}
+
+        {/* Link Section */}
+        {showLinkInput && (
+          <div className="mb-6 space-y-4 animate-fadeIn">
+            <input
+              type="text"
+              value={docName}
+              onChange={(e) => setDocName(e.target.value)}
+              placeholder="Enter document name..."
+              className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 outline-none focus:ring-2 focus:ring-green-500 transition"
+            />
+            <input
+              type="url"
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+              placeholder="Paste document link..."
+              className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 outline-none focus:ring-2 focus:ring-green-500 transition"
+            />
+            <button
+              onClick={addLinkDocument}
+              className="bg-green-500 hover:bg-green-600 text-white px-6 py-2.5 rounded-xl shadow transition transform hover:scale-105"
+            >
+              Add Document
+            </button>
           </div>
         )}
 
         {/* Document List */}
-        <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-          {docs.length === 0 ? (
-            <p className="text-gray-500 dark:text-gray-400 text-center py-6 italic">
-              No documents added yet. Start by adding one above!
+        <div className="w-full space-y-3">
+          {documents.length === 0 ? (
+            <p className="text-center text-gray-500 dark:text-gray-400 mt-10">
+              No documents yet. Upload a file or paste a link to get started.
             </p>
           ) : (
-            docs.map((doc, i) => (
-              <li
-                key={i}
-                className="flex justify-between items-center py-4 px-2 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-xl transition-all duration-200"
+            documents.map((doc) => (
+              <div
+                key={doc.id}
+                className="flex items-center justify-between px-5 py-4 rounded-2xl shadow-lg bg-white/70 dark:bg-gray-800/80 backdrop-blur-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-transform duration-300 hover:scale-[1.01]"
               >
-                <span className="font-semibold text-gray-800 dark:text-gray-100 truncate">
-                  {doc.name}
-                </span>
-                <div className="flex gap-3">
-                  <a
-                    className="text-indigo-600 dark:text-indigo-400 border border-indigo-600 dark:border-indigo-400 px-4 py-1.5 rounded-lg hover:bg-indigo-600 hover:dark:bg-indigo-500 hover:text-white transition-all duration-300"
-                    href={doc.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Open
-                  </a>
-                  <button
-                    className="text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 px-4 py-1.5 rounded-lg hover:bg-red-600 hover:dark:bg-red-500 hover:text-white transition-all duration-300"
-                    onClick={() => handleDelete(i)}
-                  >
-                    Delete
-                  </button>
+                <div className="flex items-center gap-3 overflow-hidden">
+                  <FileText className="w-6 h-6 text-indigo-500 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 truncate max-w-xs">
+                      {doc.name}
+                    </h3>
+                    {doc.type === "link" ? (
+                      <a
+                        href={doc.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline truncate max-w-xs block"
+                      >
+                        {doc.url}
+                      </a>
+                    ) : (
+                      <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">
+                        {doc.fileName}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </li>
+                <button
+                  onClick={() => confirmDelete(doc.id)}
+                  className="text-red-500 hover:text-red-600 transition"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </button>
+              </div>
             ))
           )}
-        </ul>
+        </div>
       </div>
 
-      
+      {/* Delete Confirmation Modal */}
+      {docToDelete !== null && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 w-80 text-center border border-gray-200 dark:border-gray-700">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-3">
+              Delete Document?
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Are you sure you want to delete this document? This action cannot be undone.
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={deleteDocument}
+                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setDocToDelete(null)}
+                className="bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100 px-4 py-2 rounded-lg transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
+};
 
-export default Documents;
+export default AddDocument;

@@ -131,199 +131,164 @@ const Fund = () => {
   if (loading)
     return <div className="p-8 text-center">Loading transactions...</div>;
 
-  return (
-    <div className="min-h-screen bg-gray-100 text-gray-800 flex flex-col">
-      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-md flex flex-col h-screen w-full overflow-hidden">
-        {/* Fixed Header + Summary + Form */}
-        <div className="p-4 md:p-6 border-b bg-white sticky top-0 z-20">
-          <h2 className="text-xl md:text-2xl font-semibold text-center mb-3">
-            💰 Money Management System
-          </h2>
+return (
+  <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 flex flex-col">
+    <div className="max-w-5xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-md flex flex-col h-screen w-full overflow-hidden">
+      
+      {/* Header */}
+      <div className="p-4 md:p-6 border-b bg-white dark:bg-gray-800 dark:border-gray-700 sticky top-0 z-20">
+        <h2 className="text-xl md:text-2xl font-semibold text-center mb-3">
+          💰 Money Management System
+        </h2>
 
-          {/* Summary Cards */}
-          <div className="grid grid-cols-3 gap-2 md:gap-4 mb-3 md:mb-4 text-center">
-            <div className="bg-green-100 p-3 md:p-4 rounded-lg">
-              <p className="text-xs md:text-sm text-gray-600">Income</p>
-              <p className="text-lg md:text-2xl font-bold text-green-600">
-                ₹{totalIncome}
-              </p>
-            </div>
-            <div className="bg-red-100 p-3 md:p-4 rounded-lg">
-              <p className="text-xs md:text-sm text-gray-600">Expense</p>
-              <p className="text-lg md:text-2xl font-bold text-red-500">
-                ₹{totalExpense}
-              </p>
-            </div>
-            <div className="bg-blue-100 p-3 md:p-4 rounded-lg">
-              <p className="text-xs md:text-sm text-gray-600">Balance</p>
-              <p className="text-lg md:text-2xl font-bold text-blue-600">
-                ₹{balance}
-              </p>
-            </div>
+        {/* Summary Cards */}
+        <div className="grid grid-cols-3 gap-2 md:gap-4 mb-3 md:mb-4 text-center">
+          <div className="bg-green-100 dark:bg-green-900 p-3 md:p-4 rounded-lg">
+            <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300">Income</p>
+            <p className="text-lg md:text-2xl font-bold text-green-600 dark:text-green-400">
+              ₹{totalIncome}
+            </p>
           </div>
+          <div className="bg-red-100 dark:bg-red-900 p-3 md:p-4 rounded-lg">
+            <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300">Expense</p>
+            <p className="text-lg md:text-2xl font-bold text-red-500 dark:text-red-400">
+              ₹{totalExpense}
+            </p>
+          </div>
+          <div className="bg-blue-100 dark:bg-blue-900 p-3 md:p-4 rounded-lg">
+            <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300">Balance</p>
+            <p className="text-lg md:text-2xl font-bold text-blue-600 dark:text-blue-400">
+              ₹{balance}
+            </p>
+          </div>
+        </div>
 
-          {/* Add Transaction Form */}
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col md:flex-row flex-wrap gap-2 md:gap-3 items-center"
+        {/* Add Transaction Form */}
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col md:flex-row flex-wrap gap-2 md:gap-3 items-center"
+        >
+          <select
+            value={formData.type}
+            onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+            className="border dark:border-gray-700 bg-white dark:bg-gray-700 dark:text-gray-100 px-2 py-2 rounded-md w-full md:w-auto text-sm"
           >
-            <select
-              value={formData.type}
-              onChange={(e) =>
-                setFormData({ ...formData, type: e.target.value })
-              }
-              className="border px-2 py-2 rounded-md w-full md:w-auto text-sm"
-            >
-              <option value="income">Income</option>
-              <option value="expense">Expense</option>
-            </select>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
 
-            <input
-              type="number"
-              placeholder="Amount"
-              value={formData.amount}
-              onChange={(e) =>
-                setFormData({ ...formData, amount: e.target.value })
-              }
-              className="border px-2 py-2 rounded-md flex-1 text-sm"
-            />
+          <input
+            type="number"
+            placeholder="Amount"
+            value={formData.amount}
+            onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+            className="border dark:border-gray-700 bg-white dark:bg-gray-700 dark:text-gray-100 px-2 py-2 rounded-md flex-1 text-sm"
+          />
 
+          <input
+            type="text"
+            placeholder="Category"
+            value={formData.category}
+            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+            className="border dark:border-gray-700 bg-white dark:bg-gray-700 dark:text-gray-100 px-2 py-2 rounded-md flex-1 text-sm"
+          />
+
+          <select
+            value={formData.borrowStatus}
+            onChange={(e) => setFormData({ ...formData, borrowStatus: e.target.value })}
+            className="border dark:border-gray-700 bg-white dark:bg-gray-700 dark:text-gray-100 px-2 py-2 rounded-md w-full md:w-auto text-sm"
+          >
+            <option value="none">Normal</option>
+            <option value="lent">Lent (Given)</option>
+            <option value="borrowed">Borrowed (Taken)</option>
+          </select>
+
+          {formData.borrowStatus !== "none" && (
             <input
               type="text"
-              placeholder="Category"
-              value={formData.category}
-              onChange={(e) =>
-                setFormData({ ...formData, category: e.target.value })
-              }
-              className="border px-2 py-2 rounded-md flex-1 text-sm"
+              placeholder="Person's Name"
+              value={formData.person}
+              onChange={(e) => setFormData({ ...formData, person: e.target.value })}
+              className="border dark:border-gray-700 bg-white dark:bg-gray-700 dark:text-gray-100 px-2 py-2 rounded-md flex-1 text-sm"
             />
-
-            <select
-              value={formData.borrowStatus}
-              onChange={(e) =>
-                setFormData({ ...formData, borrowStatus: e.target.value })
-              }
-              className="border px-2 py-2 rounded-md w-full md:w-auto text-sm"
-            >
-              <option value="none">Normal</option>
-              <option value="lent">Lent (Given)</option>
-              <option value="borrowed">Borrowed (Taken)</option>
-            </select>
-
-            {formData.borrowStatus !== "none" && (
-              <input
-                type="text"
-                placeholder="Person's Name"
-                value={formData.person}
-                onChange={(e) =>
-                  setFormData({ ...formData, person: e.target.value })
-                }
-                className="border px-2 py-2 rounded-md flex-1 text-sm"
-              />
-            )}
-
-            <button
-              type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition w-full md:w-auto text-sm"
-            >
-              Add
-            </button>
-          </form>
-        </div>
-        <h3 className="font-semibold text-lg mb-3 sticky top-0 bg-white z-10">
-          Recent Transactions
-        </h3>
-        {/* Scrollable Transaction List */}
-        <div className="flex-1 overflow-y-auto p-4">
-
-          {transactions.length === 0 ? (
-            <p className="text-gray-500 text-sm text-center ">
-              No transactions yet. Add one above.
-            </p>
-          ) : (
-            <div className="overflow-x-auto rounded-md border">
-              <table className="w-full text-xs md:text-sm text-left">
-                <thead className="bg-gray-50 border-b sticky top-0 z-20">
-                  <tr>
-                    <th className="px-2 py-2">Category</th>
-                    <th className="px-2 py-2">Type</th>
-                    <th className="px-2 py-2">Amount</th>
-                    <th className="px-2 py-2">Borrow/Lent</th>
-                    <th className="px-2 py-2">Person</th>
-                    <th className="px-2 py-2">Date</th>
-                    <th className="px-2 py-2 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {transactions.map((t) => (
-                    <tr
-                      key={t.id}
-                      className="border-b hover:bg-gray-50 transition"
-                    >
-                      <td className="px-2 py-2 font-medium">{t.category}</td>
-                      <td className="px-2 py-2">
-                        {t.type === "income" ? (
-                          <span className="text-green-600 font-semibold">
-                            Income
-                          </span>
-                        ) : (
-                          <span className="text-red-500 font-semibold">
-                            Expense
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-2 py-2">₹{t.amount}</td>
-                      <td className="px-2 py-2 capitalize">
-                        {t.borrowStatus === "none"
-                          ? "-"
-                          : t.borrowStatus === "lent"
-                            ? "Lent"
-                            : "Borrowed"}
-                      </td>
-                      <td className="px-2 py-2">{t.person || "-"}</td>
-                      <td className="px-2 py-2 text-gray-600 truncate">
-                        {t.date}
-                      </td>
-                      <td className="px-2 py-2 text-right">
-                        <button
-                          onClick={() => handleDelete(t.id)}
-                          className="text-xs text-gray-400 hover:text-red-500"
-                        >
-                          ❌
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
           )}
-        </div>
 
-        {/* Fixed Pie Chart at Bottom */}
-        {/* <div className="h-56 md:h-64 bg-white border-t p-2 md:p-4 sticky bottom-0 z-10">
-          <ResponsiveContainer>
-            <PieChart>
-              <Pie
-                data={data}
-                cx="50%"
-                cy="50%"
-                outerRadius={90}
-                label
-                dataKey="value"
-              >
-                {data.map((entry, index) => (
-                  <Cell key={index} fill={COLORS[index % COLORS.length]} />
+          <button
+            type="submit"
+            className="bg-blue-500 dark:bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 transition w-full md:w-auto text-sm"
+          >
+            Add
+          </button>
+        </form>
+      </div>
+
+      <h3 className="font-semibold text-lg mb-3 sticky top-0 bg-white dark:bg-gray-800 z-10 px-4">
+        Recent Transactions
+      </h3>
+
+      {/* Transaction List */}
+      <div className="flex-1 overflow-y-auto p-4">
+        {transactions.length === 0 ? (
+          <p className="text-gray-500 dark:text-gray-400 text-sm text-center">
+            No transactions yet. Add one above.
+          </p>
+        ) : (
+          <div className="overflow-x-auto rounded-md border dark:border-gray-700">
+            <table className="w-full text-xs md:text-sm text-left">
+              <thead className="bg-gray-50 dark:bg-gray-700 border-b dark:border-gray-600 sticky top-0 z-20">
+                <tr>
+                  <th className="px-2 py-2">Category</th>
+                  <th className="px-2 py-2">Type</th>
+                  <th className="px-2 py-2">Amount</th>
+                  <th className="px-2 py-2">Borrow/Lent</th>
+                  <th className="px-2 py-2">Person</th>
+                  <th className="px-2 py-2">Date</th>
+                  <th className="px-2 py-2 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {transactions.map((t) => (
+                  <tr
+                    key={t.id}
+                    className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                  >
+                    <td className="px-2 py-2 font-medium">{t.category}</td>
+                    <td className="px-2 py-2">
+                      {t.type === "income" ? (
+                        <span className="text-green-600 dark:text-green-400 font-semibold">Income</span>
+                      ) : (
+                        <span className="text-red-500 dark:text-red-400 font-semibold">Expense</span>
+                      )}
+                    </td>
+                    <td className="px-2 py-2">₹{t.amount}</td>
+                    <td className="px-2 py-2 capitalize">
+                      {t.borrowStatus === "none"
+                        ? "-"
+                        : t.borrowStatus === "lent"
+                        ? "Lent"
+                        : "Borrowed"}
+                    </td>
+                    <td className="px-2 py-2">{t.person || "-"}</td>
+                    <td className="px-2 py-2 text-gray-600 dark:text-gray-300 truncate">{t.date}</td>
+                    <td className="px-2 py-2 text-right">
+                      <button
+                        onClick={() => handleDelete(t.id)}
+                        className="text-xs text-gray-400 hover:text-red-500"
+                      >
+                        ❌
+                      </button>
+                    </td>
+                  </tr>
                 ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </div> */}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
-  );
+  </div>
+);
+
 };
 
 export default Fund;

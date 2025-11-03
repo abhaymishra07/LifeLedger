@@ -3,14 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { auth, db } from "../firebase";
 import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { signOut } from "firebase/auth";
-import { ArrowRight, LogOut, CheckCircle, Wallet, TrendingUp, Moon, Sun } from "lucide-react";
+import { ArrowRight, LogOut, CheckCircle, Wallet, TrendingUp, Moon, Sun, FilePlus, ListChecks } from "lucide-react";
+
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [todayCompleted, setTodayCompleted] = useState(0);
   const [funds, setFunds] = useState(0);
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    const storedTheme = localStorage.getItem("theme");
+    return storedTheme === "dark";
+  });
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,7 +59,19 @@ const Dashboard = () => {
     navigate("/auth");
   };
 
-  const toggleTheme = () => setDarkMode(!darkMode);
+  const toggleTheme = () => {
+    const newTheme = !darkMode;
+    setDarkMode(newTheme);
+    localStorage.setItem("theme", newTheme ? "dark" : "light");
+  };
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [darkMode]);
+
 
   if (!userData)
     return (
@@ -67,7 +84,8 @@ const Dashboard = () => {
     <div className={`${darkMode ? "dark" : ""} min-h-screen transition-colors duration-500`}>
       <div className="bg-[#f7fbff] dark:bg-[#0f172a] flex flex-col min-h-screen">
         {/* Header */}
-        <header className="flex items-center justify-between px-8 py-6 bg-white dark:bg-gray-900 shadow-sm transition-colors">
+        <header className="fixed top-0 left-0 w-full z-20 flex items-center justify-between px-8 py-6 bg-white dark:bg-gray-900 shadow-sm transition-colors backdrop-blur-lg bg-opacity-90">
+
           <div>
             <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400 flex items-center gap-2">
               Welcome back! 👋
@@ -85,12 +103,12 @@ const Dashboard = () => {
             >
               {darkMode ? (
                 <>
-                  <Sun className="w-4 h-4 text-yellow-400" /> 
+                  <Sun className="w-4 h-4 text-yellow-400" />
                   <span className="text-sm text-gray-700 dark:text-gray-300">Light</span>
                 </>
               ) : (
                 <>
-                  <Moon className="w-4 h-4 text-gray-700" /> 
+                  <Moon className="w-4 h-4 text-gray-700" />
                   <span className="text-sm text-gray-700">Dark</span>
                 </>
               )}
@@ -108,7 +126,7 @@ const Dashboard = () => {
         </header>
 
         {/* Cards */}
-        <main className="flex-1 px-6 py-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto w-full transition-colors">
+        <main className="pt-[8rem] flex-1 px-6 py-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto w-full transition-colors">
           <DashboardCard
             title="Habits"
             description="Build better habits and track your daily progress with streaks and insights."
@@ -117,6 +135,16 @@ const Dashboard = () => {
             buttonLabel="Go to Habits"
             onClick={() => navigate("/HabitPage")}
           />
+          
+          <DashboardCard
+            title="Daily Task"
+            description="Stay organized with your daily to-do list and complete your tasks on time."
+            icon={<ListChecks className="w-8 h-8 text-white" />}
+            iconBg="from-orange-400 to-pink-500"
+            buttonLabel="Go to Tasks"
+            onClick={() => navigate("/dailytask")} // <-- make sure this route exists
+          />
+
           <DashboardCard
             title="Funds"
             description="Manage your finances, track expenses, and monitor your savings goals."
@@ -126,6 +154,15 @@ const Dashboard = () => {
             onClick={() => navigate("/fund")}
           />
           <DashboardCard
+            title="Documents"
+            description="Upload and manage your important documents securely in one place."
+            icon={<FilePlus className="w-8 h-8 text-white" />}
+            iconBg="from-purple-500 to-indigo-500"
+            buttonLabel="Add Document"
+            onClick={() => navigate("/documents")} 
+          />
+
+          <DashboardCard
             title="Stocks"
             description="Monitor your investments and stay updated with market trends and performance."
             icon={<TrendingUp className="w-8 h-8 text-white" />}
@@ -133,6 +170,7 @@ const Dashboard = () => {
             buttonLabel="Go to Stocks"
             onClick={() => navigate("/stocks")}
           />
+
         </main>
       </div>
     </div>
