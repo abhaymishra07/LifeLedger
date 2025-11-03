@@ -84,11 +84,11 @@ const Dashboard = () => {
     <div className={`${darkMode ? "dark" : ""} min-h-screen transition-colors duration-500`}>
       <div className="bg-[#f7fbff] dark:bg-[#0f172a] flex flex-col min-h-screen">
         {/* Header */}
-        <header className="fixed top-0 left-0 w-full z-20 flex items-center justify-between px-8 py-6 bg-white dark:bg-gray-900 shadow-sm transition-colors backdrop-blur-lg bg-opacity-90">
+        <header className=" fixed top-0 left-0 w-full z-20 flex items-center justify-between px-8 py-6 bg-white dark:bg-gray-900 shadow-sm transition-colors backdrop-blur-lg bg-opacity-90">
 
           <div>
             <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400 flex items-center gap-2">
-              Welcome back! 👋
+              Welcome back!👋
             </h1>
             <p className="text-gray-500 dark:text-gray-400 text-sm">
               Track your progress and stay on top of your goals

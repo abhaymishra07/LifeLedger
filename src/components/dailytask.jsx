@@ -1,38 +1,104 @@
-import React, { useState } from "react";
-import { PlusCircle, Trash2, CheckCircle, Circle } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import {
+  PlusCircle,
+  Trash2,
+  CheckCircle,
+  Circle
+} from "lucide-react";
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  deleteDoc,
+  doc,
+  updateDoc,
+  query,
+  where
+} from "firebase/firestore";
+import { db, auth } from "../firebase";
 
 const DailyTask = () => {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState("");
   const [showInput, setShowInput] = useState(false);
-  const [taskToDelete, setTaskToDelete] = useState(null); // For delete confirmation
+  const [taskToDelete, setTaskToDelete] = useState(null);
 
-  const addTask = () => {
+  // 🔥 Fetch all tasks in real-time for current user
+  useEffect(() => {
+    const unsubscribeAuth = auth.onAuthStateChanged((user) => {
+      if (user) {
+        const q = query(collection(db, "tasks"), where("userId", "==", user.uid));
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+          const tasksData = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setTasks(tasksData);
+        });
+
+        return () => unsubscribe();
+      } else {
+        setTasks([]);
+      }
+    });
+
+    return () => unsubscribeAuth();
+  }, []);
+
+  // ➕ Add Task
+  const addTask = async () => {
     if (newTask.trim() === "") return;
-    setTasks([...tasks, { text: newTask, completed: false }]);
-    setNewTask("");
-    setShowInput(false);
+
+    const user = auth.currentUser;
+    if (!user) {
+      alert("Please log in first!");
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "tasks"), {
+        text: newTask.trim(),
+        completed: false,
+        createdAt: new Date().toISOString(),
+        userId: user.uid,
+      });
+      setNewTask("");
+      setShowInput(false);
+    } catch (error) {
+      console.error("Error adding task:", error);
+    }
   };
 
-  const toggleTask = (index) => {
-    const updatedTasks = [...tasks];
-    updatedTasks[index].completed = !updatedTasks[index].completed;
-    setTasks(updatedTasks);
+  // ✅ Toggle Complete / Incomplete
+  const toggleTask = async (id, currentValue) => {
+    try {
+      const taskRef = doc(db, "tasks", id);
+      await updateDoc(taskRef, { completed: !currentValue });
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
   };
 
+  // 🗑️ Confirm Delete
   const confirmDelete = (index) => {
     setTaskToDelete(index);
   };
 
-  const deleteTask = () => {
-    const updatedTasks = tasks.filter((_, i) => i !== taskToDelete);
-    setTasks(updatedTasks);
-    setTaskToDelete(null);
+  // 🗑️ Delete Task from Firestore
+  const deleteTask = async () => {
+    try {
+      const taskId = tasks[taskToDelete].id;
+      await deleteDoc(doc(db, "tasks", taskId));
+      setTaskToDelete(null);
+    } catch (error) {
+      console.error("Error deleting task:", error);
+    }
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-start px-6 py-10 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 transition-colors duration-700">
-      {/* Main Bounded Container */}
+      {/* Main Container */}
       <div className="w-full max-w-4xl border border-gray-300 dark:border-gray-700 rounded-3xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-lg shadow-xl p-8 transition-all">
 
         {/* Header */}
@@ -77,11 +143,11 @@ const DailyTask = () => {
           ) : (
             tasks.map((task, index) => (
               <div
-                key={index}
+                key={task.id}
                 className="flex items-center justify-between px-5 py-4 rounded-2xl shadow-lg bg-white/70 dark:bg-gray-800/80 backdrop-blur-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-transform duration-300 hover:scale-[1.01]"
               >
                 <div className="flex items-center gap-3">
-                  <button onClick={() => toggleTask(index)} className="focus:outline-none">
+                  <button onClick={() => toggleTask(task.id, task.completed)} className="focus:outline-none">
                     {task.completed ? (
                       <CheckCircle className="w-6 h-6 text-green-500 transition-transform duration-200" />
                     ) : (
