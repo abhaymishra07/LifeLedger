@@ -8,12 +8,14 @@ import Stocks from "./components/stocks";
 import Documents from "./components/documents";
 import DailyTask from "./components/dailytask";
 import ProtectedRoute from "./components/protectedRoute";
+import LandingPage from "./components/landingpage";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Auth />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/auth" element={<Auth />} />
 
         {/* ✅ Only logged-in users can access these */}
         <Route

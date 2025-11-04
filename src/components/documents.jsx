@@ -60,7 +60,7 @@ const AddDocument = () => {
         {/* Header */}
         <header className="flex justify-between items-center w-full mb-8 border-b border-gray-300 dark:border-gray-700 pb-4">
           <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 tracking-tight">
-            📄 Add Document
+            📄 Your Documents
           </h1>
           <div className="flex gap-3">
             {/* <button

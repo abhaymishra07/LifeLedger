@@ -88,7 +88,7 @@ const Dashboard = () => {
 
           <div>
             <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400 flex items-center gap-2">
-              Welcome back!👋
+              Welcome {userData?.name || "User"}
             </h1>
             <p className="text-gray-500 dark:text-gray-400 text-sm">
               Track your progress and stay on top of your goals
@@ -137,7 +137,7 @@ const Dashboard = () => {
           />
           
           <DashboardCard
-            title="Daily Task"
+            title="Daily Tasks"
             description="Stay organized with your daily to-do list and complete your tasks on time."
             icon={<ListChecks className="w-8 h-8 text-white" />}
             iconBg="from-orange-400 to-pink-500"

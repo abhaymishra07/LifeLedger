@@ -105,12 +105,7 @@ const Auth = () => {
             className="w-full max-w-sm flex flex-col items-center"
           >
             <h1 className="text-2xl font-bold mb-4">Sign In</h1>
-            <div className="flex space-x-3 mb-4">
-              <SocialIcon icon={<FaGooglePlusG />} />
-              <SocialIcon icon={<FaFacebookF />} />
-              <SocialIcon icon={<FaGithub />} />
-              <SocialIcon icon={<FaLinkedinIn />} />
-            </div>
+            
             <span className="text-xs text-gray-500 mb-3">
               or use your email and password
             </span>
@@ -130,13 +125,6 @@ const Auth = () => {
               required
               className="bg-gray-100 border-none my-2 px-3 py-2 text-sm rounded-md w-full outline-none"
             />
-            <a
-              href="#"
-              className="text-gray-500 text-xs mt-2 mb-3 hover:underline"
-              onClick={(e) => e.preventDefault()}
-            >
-              Forgot Password?
-            </a>
             <button
               type="submit"
               disabled={loading}
@@ -158,14 +146,8 @@ const Auth = () => {
             className="w-full max-w-sm flex flex-col items-center"
           >
             <h1 className="text-2xl font-bold mb-4">Create Account</h1>
-            <div className="flex space-x-3 mb-4">
-              <SocialIcon icon={<FaGooglePlusG />} />
-              <SocialIcon icon={<FaFacebookF />} />
-              <SocialIcon icon={<FaGithub />} />
-              <SocialIcon icon={<FaLinkedinIn />} />
-            </div>
             <span className="text-xs text-gray-500 mb-3">
-              or use your email for registration
+              use your email for registration
             </span>
             <input
               type="text"
