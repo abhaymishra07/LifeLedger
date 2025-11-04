@@ -83,7 +83,7 @@ const HabitPage = () => {
         name: habitName.trim(),
         date: getToday(),
         completed: false,
-        userId: user.uid, // ✅ changed from uid → userId
+        userId: user.uid,
         week: getWeekStart().toISOString().split("T")[0],
         days: Array(7).fill(false),
       });
@@ -113,8 +113,8 @@ const HabitPage = () => {
   };
 
   return (
-    <div className="p-6 space-y-6 min-h-screen bg-gray-50">
-      <h2 className="text-2xl font-semibold text-center mb-4">
+    <div className="p-6 space-y-6 min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-500">
+      <h2 className="text-2xl font-semibold text-center mb-4 text-gray-800 dark:text-gray-100">
         🧘 Habit Tracker
       </h2>
 
@@ -127,31 +127,33 @@ const HabitPage = () => {
           placeholder="Enter habit name"
           value={habitName}
           onChange={(e) => setHabitName(e.target.value)}
-          className="border p-2 rounded-lg w-64"
+          className="border p-2 rounded-lg w-64 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
         />
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
         >
           Add Habit
         </button>
       </form>
 
       {/* 📋 Habit Table */}
-      <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+      <div className="max-w-6xl mx-auto bg-white dark:bg-gray-900 rounded-xl shadow-md overflow-hidden transition-colors duration-500">
         <div className="overflow-y-auto max-h-[400px] relative">
           <table className="min-w-[700px] w-full border-collapse">
-            <thead className="bg-gray-100 sticky top-0 z-[5]">
+            <thead className="bg-gray-100 dark:bg-gray-800 sticky top-0 z-[5]">
               <tr>
-                <th className="px-4 py-3 text-left font-semibold bg-white sticky left-0 z-[2]">
+                <th className="px-4 py-3 text-left font-semibold bg-white dark:bg-gray-900 sticky left-0 z-[2] text-gray-800 dark:text-gray-100">
                   Habit
                 </th>
                 {days.map((day, idx) => (
-                  <th key={idx} className="px-4 py-3 font-semibold text-center">
+                  <th key={idx} className="px-4 py-3 font-semibold text-center text-gray-700 dark:text-gray-200">
                     {day}
                   </th>
                 ))}
-                <th className="px-4 py-3 text-center font-semibold">Actions</th>
+                <th className="px-4 py-3 text-center font-semibold text-gray-700 dark:text-gray-200">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -159,16 +161,19 @@ const HabitPage = () => {
                 <tr>
                   <td
                     colSpan={days.length + 2}
-                    className="text-center py-4 text-gray-500"
+                    className="text-center py-4 text-gray-500 dark:text-gray-400"
                   >
                     No habits yet. Add one!
                   </td>
                 </tr>
               ) : (
                 habits.map((habit) => (
-                  <tr key={habit.id} className="border-b hover:bg-gray-50">
+                  <tr
+                    key={habit.id}
+                    className="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+                  >
                     <td
-                      className="px-4 py-3 font-medium sticky left-0 bg-white z-[1]"
+                      className="px-4 py-3 font-medium sticky left-0 bg-white dark:bg-gray-900 z-[1] text-gray-900 dark:text-gray-100"
                       style={{ pointerEvents: "auto" }}
                     >
                       {habit.name}
@@ -180,7 +185,7 @@ const HabitPage = () => {
                           className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200 ${
                             habit.days?.[idx]
                               ? "bg-green-500 text-white"
-                              : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                              : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
                           }`}
                         >
                           {habit.days?.[idx] ? "Done" : "Mark"}
@@ -190,7 +195,7 @@ const HabitPage = () => {
                     <td className="text-center">
                       <button
                         onClick={() => deleteHabit(habit.id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded-lg text-sm"
+                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm transition"
                       >
                         Delete
                       </button>

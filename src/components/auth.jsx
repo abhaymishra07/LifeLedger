@@ -22,7 +22,8 @@ const SocialIcon = ({ icon, onClick }) => (
       e.preventDefault();
       if (onClick) onClick();
     }}
-    className="border border-gray-300 rounded-lg w-10 h-10 flex items-center justify-center hover:bg-gray-100 transition"
+    className="border border-gray-300 dark:border-gray-700 rounded-lg w-10 h-10 flex items-center justify-center 
+    hover:bg-indigo-100 dark:hover:bg-gray-800 text-indigo-600 dark:text-indigo-400 transition"
   >
     {icon}
   </a>
@@ -56,16 +57,13 @@ const Auth = () => {
         signUpPassword
       );
       const user = userCredential.user;
-
       await updateProfile(user, { displayName: signUpName });
-
       await setDoc(doc(db, "users", user.uid), {
         name: signUpName,
         funds: 0,
         habits: 0,
         stocks: 0,
       });
-
       setMessage("✅ Account created successfully!");
       navigate("/dashboard");
     } catch (error) {
@@ -90,23 +88,28 @@ const Auth = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-gray-200 to-indigo-200 p-2 sm:p-4">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-100 via-white to-blue-100 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 p-4 transition-colors duration-500">
       <div
-        className={`relative bg-white rounded-3xl shadow-lg overflow-hidden w-full max-w-md sm:max-w-2xl min-h-[520px] flex flex-col sm:flex-row transition-all duration-700`}
+        className={`relative bg-white dark:bg-gray-900 rounded-3xl shadow-2xl overflow-hidden w-full max-w-md sm:max-w-2xl min-h-[520px] flex flex-col sm:flex-row transition-all duration-700`}
       >
         {/* ---------------- SIGN IN FORM ---------------- */}
         <div
           className={`w-full sm:w-1/2 flex flex-col items-center justify-center px-8 py-10 transition-all duration-700
-            ${isActive ? "hidden sm:flex sm:translate-x-full sm:opacity-0 sm:z-0" : "flex sm:translate-x-0 sm:opacity-100 sm:z-10"}
-          `}
+            ${
+              isActive
+                ? "hidden sm:flex sm:translate-x-full sm:opacity-0 sm:z-0"
+                : "flex sm:translate-x-0 sm:opacity-100 sm:z-10"
+            }`}
         >
           <form
             onSubmit={handleSignin}
             className="w-full max-w-sm flex flex-col items-center"
           >
-            <h1 className="text-2xl font-bold mb-4">Sign In</h1>
-            
-            <span className="text-xs text-gray-500 mb-3">
+            <h1 className="text-3xl font-bold mb-4 text-indigo-600 dark:text-indigo-400">
+              Sign In
+            </h1>
+
+            <span className="text-xs text-gray-500 dark:text-gray-400 mb-3">
               or use your email and password
             </span>
             <input
@@ -115,7 +118,9 @@ const Auth = () => {
               value={signInEmail}
               onChange={(e) => setSignInEmail(e.target.value)}
               required
-              className="bg-gray-100 border-none my-2 px-3 py-2 text-sm rounded-md w-full outline-none"
+              className="bg-gray-100 dark:bg-gray-800 border-none my-2 px-3 py-2 text-sm 
+                         rounded-md w-full outline-none focus:ring-2 focus:ring-indigo-400 
+                         text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
             />
             <input
               type="password"
@@ -123,12 +128,14 @@ const Auth = () => {
               value={signInPassword}
               onChange={(e) => setSignInPassword(e.target.value)}
               required
-              className="bg-gray-100 border-none my-2 px-3 py-2 text-sm rounded-md w-full outline-none"
+              className="bg-gray-100 dark:bg-gray-800 border-none my-2 px-3 py-2 text-sm 
+                         rounded-md w-full outline-none focus:ring-2 focus:ring-indigo-400 
+                         text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
             />
             <button
               type="submit"
               disabled={loading}
-              className="bg-teal-600 text-white text-xs uppercase font-semibold px-6 py-2 rounded-md hover:bg-teal-700 transition mt-2 w-full"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs uppercase font-semibold px-6 py-2 rounded-md shadow-md transition mt-2 w-full"
             >
               {loading ? "Signing In..." : "Sign In"}
             </button>
@@ -138,16 +145,21 @@ const Auth = () => {
         {/* ---------------- SIGN UP FORM ---------------- */}
         <div
           className={`w-full sm:w-1/2 flex flex-col items-center justify-center px-8 py-10 transition-all duration-700
-            ${isActive ? "flex sm:translate-x-0 sm:opacity-100 sm:z-10" : "hidden sm:-translate-x-full sm:opacity-0 sm:z-0"}
-          `}
+            ${
+              isActive
+                ? "flex sm:translate-x-0 sm:opacity-100 sm:z-10"
+                : "hidden sm:-translate-x-full sm:opacity-0 sm:z-0"
+            }`}
         >
           <form
             onSubmit={handleSignup}
             className="w-full max-w-sm flex flex-col items-center"
           >
-            <h1 className="text-2xl font-bold mb-4">Create Account</h1>
-            <span className="text-xs text-gray-500 mb-3">
-              use your email for registration
+            <h1 className="text-3xl font-bold mb-4 text-indigo-600 dark:text-indigo-400">
+              Create Account
+            </h1>
+            <span className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+              Use your email for registration
             </span>
             <input
               type="text"
@@ -155,7 +167,9 @@ const Auth = () => {
               value={signUpName}
               onChange={(e) => setSignUpName(e.target.value)}
               required
-              className="bg-gray-100 border-none my-2 px-3 py-2 text-sm rounded-md w-full outline-none"
+              className="bg-gray-100 dark:bg-gray-800 border-none my-2 px-3 py-2 text-sm 
+                         rounded-md w-full outline-none focus:ring-2 focus:ring-indigo-400 
+                         text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
             />
             <input
               type="email"
@@ -163,7 +177,9 @@ const Auth = () => {
               value={signUpEmail}
               onChange={(e) => setSignUpEmail(e.target.value)}
               required
-              className="bg-gray-100 border-none my-2 px-3 py-2 text-sm rounded-md w-full outline-none"
+              className="bg-gray-100 dark:bg-gray-800 border-none my-2 px-3 py-2 text-sm 
+                         rounded-md w-full outline-none focus:ring-2 focus:ring-indigo-400 
+                         text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
             />
             <input
               type="password"
@@ -171,47 +187,52 @@ const Auth = () => {
               value={signUpPassword}
               onChange={(e) => setSignUpPassword(e.target.value)}
               required
-              className="bg-gray-100 border-none my-2 px-3 py-2 text-sm rounded-md w-full outline-none"
+              className="bg-gray-100 dark:bg-gray-800 border-none my-2 px-3 py-2 text-sm 
+                         rounded-md w-full outline-none focus:ring-2 focus:ring-indigo-400 
+                         text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
             />
             <button
               type="submit"
               disabled={loading}
-              className="bg-teal-600 text-white text-xs uppercase font-semibold px-6 py-2 rounded-md hover:bg-teal-700 transition mt-4 w-full"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs uppercase font-semibold px-6 py-2 rounded-md shadow-md transition mt-4 w-full"
             >
               {loading ? "Signing Up..." : "Sign Up"}
             </button>
           </form>
         </div>
 
-        {/* Overlay for desktop */}
+        {/* Curved Overlay */}
         <div
-          className={`hidden sm:flex absolute top-0 left-1/2 w-1/2 h-full transition-all duration-700 rounded-[150px_0_0_100px] overflow-hidden z-20 bg-gradient-to-r from-indigo-500 to-teal-500
-            ${isActive ? "-translate-x-full rounded-[0_150px_100px_0]" : "translate-x-0"}
-          `}
+          className={`hidden sm:flex absolute top-0 left-1/2 w-1/2 h-full transition-all duration-700 overflow-hidden z-20
+            ${
+              isActive
+                ? "-translate-x-full rounded-[0_150px_100px_0]"
+                : "translate-x-0 rounded-[150px_0_0_100px]"
+            }`}
         >
-          <div className="text-white h-full w-full flex flex-col justify-center items-center px-8 text-center transition-all duration-700">
+          <div className="text-white h-full w-full flex flex-col justify-center items-center px-8 text-center transition-all duration-700 bg-gradient-to-br from-indigo-500 via-sky-400 to-blue-400">
             {!isActive ? (
               <>
-                <h1 className="text-3xl font-bold mb-3">Welcome Back!</h1>
-                <p className="text-sm mb-4">
+                <h1 className="text-3xl font-bold mb-3 drop-shadow-md">Welcome Back!</h1>
+                <p className="text-sm mb-4 opacity-90">
                   Enter your details to access your account
                 </p>
                 <button
                   onClick={() => setIsActive(true)}
-                  className="bg-transparent border border-white text-white text-xs uppercase font-semibold px-6 py-2 rounded-md hover:bg-white hover:text-teal-700 transition"
+                  className="bg-transparent border border-white text-white text-xs uppercase font-semibold px-6 py-2 rounded-md hover:bg-white hover:text-indigo-700 transition"
                 >
                   Sign Up
                 </button>
               </>
             ) : (
               <>
-                <h1 className="text-3xl font-bold mb-3">Hello, Friend!</h1>
-                <p className="text-sm mb-4">
-                  Register with your details to use all site features
+                <h1 className="text-3xl font-bold mb-3 drop-shadow-md">Hello, Friend!</h1>
+                <p className="text-sm mb-4 opacity-90">
+                  Register now to explore all features
                 </p>
                 <button
                   onClick={() => setIsActive(false)}
-                  className="bg-transparent border border-white text-white text-xs uppercase font-semibold px-6 py-2 rounded-md hover:bg-white hover:text-teal-700 transition"
+                  className="bg-transparent border border-white text-white text-xs uppercase font-semibold px-6 py-2 rounded-md hover:bg-white hover:text-indigo-700 transition"
                 >
                   Sign In
                 </button>
@@ -220,11 +241,11 @@ const Auth = () => {
           </div>
         </div>
 
-        {/* Mobile toggle button */}
+        {/* Mobile toggle */}
         <div className="sm:hidden absolute top-3 right-3 z-30">
           <button
             onClick={() => setIsActive(!isActive)}
-            className="bg-teal-600 text-white text-xs font-semibold px-4 py-2 rounded-md"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-md shadow-md transition"
           >
             {isActive ? "Sign In" : "Sign Up"}
           </button>
@@ -232,7 +253,7 @@ const Auth = () => {
       </div>
 
       {message && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-white shadow-md px-4 py-2 rounded-lg text-sm">
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-white dark:bg-gray-800 shadow-md px-4 py-2 rounded-lg text-sm text-gray-800 dark:text-gray-100">
           {message}
         </div>
       )}

@@ -9,8 +9,12 @@ import Documents from "./components/documents";
 import DailyTask from "./components/dailytask";
 import ProtectedRoute from "./components/protectedRoute";
 import LandingPage from "./components/landingpage";
+import { Moon, Sun } from "lucide-react";
+import { useDarkMode } from "./hooks/useDarkMode"; // ✅ import custom hook
 
 function App() {
+  const [darkMode, setDarkMode] = useDarkMode();
+
   return (
     <Router>
       <Routes>

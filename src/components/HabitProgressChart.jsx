@@ -31,14 +31,14 @@ const HabitProgressChart = ({ habits }) => {
 
   if (!chartData.length) {
     return (
-      <div className="text-center text-gray-500 py-6">
+      <div className="text-center text-gray-500 dark:text-gray-400 py-6">
         No progress yet. Mark some habits as done!
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-4">
+    <div className="bg-white dark:bg-gray-900 dark:text-gray-100 rounded-xl shadow-md p-4 transition-colors duration-300">
       <h3 className="text-xl font-semibold mb-3 text-center">
         📊 Weekly Habit Progress
       </h3>
@@ -48,10 +48,29 @@ const HabitProgressChart = ({ habits }) => {
             data={[...chartData]}
             margin={{ top: 20, right: 20, left: 0, bottom: 5 }}
           >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis domain={[0, 100]} tickFormatter={(val) => `${val}%`} />
-            <Tooltip formatter={(val) => `${val}%`} />
+            {/* grid and axis adjust based on dark mode */}
+            <CartesianGrid strokeDasharray="3 3" stroke="currentColor" opacity={0.1} />
+            <XAxis
+              dataKey="name"
+              stroke="currentColor"
+              tick={{ fill: "currentColor" }}
+            />
+            <YAxis
+              domain={[0, 100]}
+              tickFormatter={(val) => `${val}%`}
+              stroke="currentColor"
+              tick={{ fill: "currentColor" }}
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "var(--tw-prose-bg, #1f2937)",
+                border: "none",
+                borderRadius: "8px",
+                color: "#fff",
+              }}
+              formatter={(val) => `${val}%`}
+              labelStyle={{ color: "#fff" }}
+            />
             <Bar dataKey="progress" barSize={40}>
               <LabelList dataKey="progress" position="top" formatter={(v) => `${v}%`} />
               {chartData.map((entry, index) => (

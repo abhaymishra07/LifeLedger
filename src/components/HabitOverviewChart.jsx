@@ -64,14 +64,14 @@ const HabitOverviewChart = ({ habits = [] }) => {
   }, [habits, view]);
 
   return (
-    <div className="bg-white p-4 rounded-xl shadow-md mt-6">
+    <div className="bg-white dark:bg-gray-900 dark:text-gray-100 p-4 rounded-xl shadow-md mt-6 transition-colors duration-300">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">📈 Overall Habit Progress</h2>
 
         <select
           value={view}
           onChange={(e) => setView(e.target.value)}
-          className="border p-1 rounded-md text-sm"
+          className="border p-1 rounded-md text-sm bg-white dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700 transition-colors duration-300"
         >
           <option value="daily">Daily</option>
           <option value="weekly">Weekly</option>
@@ -80,14 +80,37 @@ const HabitOverviewChart = ({ habits = [] }) => {
       </div>
 
       {data.length === 0 ? (
-        <p className="text-center text-gray-500">No data yet to show progress.</p>
+        <p className="text-center text-gray-500 dark:text-gray-400">
+          No data yet to show progress.
+        </p>
       ) : (
         <ResponsiveContainer width="100%" height={350}>
           <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="label" angle={-45} textAnchor="end" height={80} />
-            <YAxis domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
-            <Tooltip formatter={(value) => `${value}%`} labelFormatter={(label) => `Period: ${label}`} />
+            <CartesianGrid strokeDasharray="3 3" stroke="currentColor" opacity={0.1} />
+            <XAxis
+              dataKey="label"
+              angle={-45}
+              textAnchor="end"
+              height={80}
+              stroke="currentColor"
+              tick={{ fill: "currentColor" }}
+            />
+            <YAxis
+              domain={[0, 100]}
+              tickFormatter={(v) => `${v}%`}
+              stroke="currentColor"
+              tick={{ fill: "currentColor" }}
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "var(--tw-prose-bg, #1f2937)",
+                border: "none",
+                borderRadius: "8px",
+                color: "#fff",
+              }}
+              formatter={(value) => `${value}%`}
+              labelStyle={{ color: "#fff" }}
+            />
             <Bar dataKey="percent" barSize={40}>
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={getColorForPercentage(entry.percent)} />

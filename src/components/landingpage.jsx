@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 export default function LandingPage() {
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
     const [darkMode, setDarkMode] = useState(false);
 
     // Load theme preference on mount
@@ -81,7 +81,7 @@ export default function LandingPage() {
                             {darkMode ? <Sun size={18} /> : <Moon size={18} />}
                         </button>
 
-                        <button 
+                        <button
                             onClick={() => navigate("/auth")}
                             className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-2 rounded-full shadow-md transition">
                             Sign In
@@ -122,7 +122,7 @@ export default function LandingPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.4, duration: 0.6 }}
                 >
-                    <button 
+                    <button
                         onClick={() => navigate("/auth")}
                         className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-8 py-3 rounded-full shadow-lg transition text-lg flex items-center gap-2 mx-auto">
                         Get Started <ArrowRight size={20} />
@@ -178,14 +178,8 @@ export default function LandingPage() {
                     whileInView={{ opacity: 1 }}
                     transition={{ delay: 0.2, duration: 0.6 }}
                 >
-                    All your productivity tools.
-                    One beautiful dashboard.
-                    Zero data worries.
-                    LifeLedger helps you stay focused, organized, and motivated — while keeping your personal data 100% private.
-                    All your productivity tools.
-                    One beautiful dashboard.
-                    Zero data worries.
-                    LifeLedger helps you stay focused, organized, and motivated — while keeping your personal data 100% private.
+                    <p>The future of productivity is private.</p>
+                    <p>LifeLedger gives you one powerful dashboard to manage everything — tasks, goals, and focus — with zero data tracking, zero clutter, and maximum motivation.</p>
                 </motion.p>
             </section>
 
