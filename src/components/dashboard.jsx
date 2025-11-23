@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { auth, db } from "../firebase";
 import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { signOut } from "firebase/auth";
-import { ArrowRight, LogOut, CheckCircle, Wallet, TrendingUp, Moon, Sun, FilePlus, ListChecks } from "lucide-react";
+import { ArrowRight, LogOut, CheckCircle, Wallet, TrendingUp, Moon, Sun, FilePlus, ListChecks, Target } from "lucide-react";
 
 
 const Dashboard = () => {
@@ -84,7 +84,7 @@ const Dashboard = () => {
     <div className={`${darkMode ? "dark" : ""} min-h-screen transition-colors duration-500`}>
       <div className="bg-[#f7fbff] dark:bg-[#0f172a] flex flex-col min-h-screen">
         {/* Header */}
-        <header className=" fixed top-0 left-0 w-full z-20 flex items-center justify-between px-8 py-6 bg-white dark:bg-gray-900 shadow-sm transition-colors backdrop-blur-lg bg-opacity-90">
+        <header className=" fixed top-0 left-0 w-full z-20 flex items-center justify-between px-8 py-3 bg-white dark:bg-gray-900 shadow-sm transition-colors backdrop-blur-lg bg-opacity-90">
 
           <div>
             <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400 flex items-center gap-2">
@@ -117,7 +117,7 @@ const Dashboard = () => {
             {/* Logout */}
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full px-4 py-2 shadow-sm hover:shadow-md transition"
+              className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full px-4 py-2 shadow-sm hover:shadow-md transition hover:bg-red-500 dark:hover:bg-red-500"
             >
               <LogOut className="w-4 h-4 text-gray-600 dark:text-gray-300" />
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Logout</span>
@@ -135,7 +135,7 @@ const Dashboard = () => {
             buttonLabel="Go to Habits"
             onClick={() => navigate("/HabitPage")}
           />
-          
+
           <DashboardCard
             title="Daily Tasks"
             description="Stay organized with your daily to-do list and complete your tasks on time."
@@ -159,7 +159,7 @@ const Dashboard = () => {
             icon={<FilePlus className="w-8 h-8 text-white" />}
             iconBg="from-purple-500 to-indigo-500"
             buttonLabel="Add Document"
-            onClick={() => navigate("/documents")} 
+            onClick={() => navigate("/documents")}
           />
 
           <DashboardCard
@@ -171,8 +171,25 @@ const Dashboard = () => {
             onClick={() => navigate("/stocks")}
           />
 
+          <DashboardCard
+            title="Goals"
+            description="Set clear goals, track your progress, and stay motivated to achieve what matters most."
+            icon={<Target className="w-8 h-8 text-white" />}
+            iconBg="from-yellow-400 to-orange-500"
+            buttonLabel="Check Goals"
+            onClick={() => navigate("/goals")}
+          />
         </main>
       </div>
+      <button
+  onClick={() => navigate("/suggestionPage")}
+  className="fixed bottom-6 right-6 backdrop-blur-md bg-blue-600/80 hover:bg-blue-700/90 
+             text-white px-6 py-3 rounded-2xl shadow-xl transition-all 
+             hover:scale-105 active:scale-95 z-30 flex items-center gap-2"
+>
+  <span className="font-medium">Suggestion</span>
+</button>
+
     </div>
   );
 };
@@ -203,3 +220,5 @@ const DashboardCard = ({ title, description, icon, iconBg, buttonLabel, onClick 
     </div>
   );
 };
+
+

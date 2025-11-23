@@ -143,25 +143,37 @@ return (
 
         {/* Summary Cards */}
         <div className="grid grid-cols-3 gap-2 md:gap-4 mb-3 md:mb-4 text-center">
-          <div className="bg-green-100 dark:bg-green-900 p-3 md:p-4 rounded-lg">
-            <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300">Income</p>
-            <p className="text-lg md:text-2xl font-bold text-green-600 dark:text-green-400">
-              ₹{totalIncome}
-            </p>
-          </div>
-          <div className="bg-red-100 dark:bg-red-900 p-3 md:p-4 rounded-lg">
-            <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300">Expense</p>
-            <p className="text-lg md:text-2xl font-bold text-red-500 dark:text-red-400">
-              ₹{totalExpense}
-            </p>
-          </div>
-          <div className="bg-blue-100 dark:bg-blue-900 p-3 md:p-4 rounded-lg">
-            <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300">Balance</p>
-            <p className="text-lg md:text-2xl font-bold text-blue-600 dark:text-blue-400">
-              ₹{balance}
-            </p>
-          </div>
-        </div>
+  {/* Income Card */}
+  <div className="group relative overflow-hidden bg-green-100 dark:bg-green-900 p-3 md:p-4 rounded-xl transition-all duration-500 transform hover:-translate-y-1 hover:scale-105 hover:shadow-xl">
+    {/* Animated gradient shimmer */}
+    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-green-300/30 to-transparent dark:via-green-500/20 opacity-0 group-hover:opacity-100 animate-[shimmer_2s_linear_infinite]"></div>
+
+    <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300">Income</p>
+    <p className="text-lg md:text-2xl font-bold text-green-600 dark:text-green-400 transition-colors duration-300 group-hover:text-green-700 dark:group-hover:text-green-300">
+      ₹{totalIncome}
+    </p>
+  </div>
+
+  {/* Expense Card */}
+  <div className="group relative overflow-hidden bg-red-100 dark:bg-red-900 p-3 md:p-4 rounded-xl transition-all duration-500 transform hover:-translate-y-1 hover:scale-105 hover:shadow-xl">
+    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-red-300/30 to-transparent dark:via-red-500/20 opacity-0 group-hover:opacity-100 animate-[shimmer_2s_linear_infinite]"></div>
+
+    <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300">Expense</p>
+    <p className="text-lg md:text-2xl font-bold text-red-500 dark:text-red-400 transition-colors duration-300 group-hover:text-red-600 dark:group-hover:text-red-300">
+      ₹{totalExpense}
+    </p>
+  </div>
+
+  {/* Balance Card */}
+  <div className="group relative overflow-hidden bg-blue-100 dark:bg-blue-900 p-3 md:p-4 rounded-xl transition-all duration-500 transform hover:-translate-y-1 hover:scale-105 hover:shadow-xl">
+    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-300/30 to-transparent dark:via-blue-500/20 opacity-0 group-hover:opacity-100 animate-[shimmer_2s_linear_infinite]"></div>
+
+    <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300">Balance</p>
+    <p className="text-lg md:text-2xl font-bold text-blue-600 dark:text-blue-400 transition-colors duration-300 group-hover:text-blue-700 dark:group-hover:text-blue-300">
+      ₹{balance}
+    </p>
+  </div>
+</div>
 
         {/* Add Transaction Form */}
         <form

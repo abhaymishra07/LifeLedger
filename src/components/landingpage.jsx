@@ -8,6 +8,9 @@ import {
     ListChecks,
     Moon,
     Sun,
+    FilePlus,
+    TrendingUp,
+    Target,
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -49,6 +52,24 @@ export default function LandingPage() {
             title: "Money Management",
             color: "from-teal-400 to-emerald-500",
             desc: "Track your expenses, visualize savings, and take control of your financial health effortlessly.",
+        },
+        {
+            icon: <FilePlus className="w-7 h-7" />,
+            title: "Documents",
+            color: "from-purple-500 to-indigo-500",
+            desc: "Upload, organize, and access your important documents securely — all in one place.",
+        },
+        {
+            icon: <TrendingUp className="w-7 h-7" />,
+            title: "Stocks",
+            color: "from-blue-500 to-indigo-500",
+            desc: "Track your investments, analyze performance, and make smarter financial decisions with ease.",
+        },
+        {
+            icon: <Target className="w-7 h-7" />,
+            title: "Goals",
+            color: "from-yellow-400 to-orange-500",
+            desc: "Set clear goals, track your progress, and stay motivated to achieve what matters most.",
         },
     ];
 
@@ -160,33 +181,190 @@ export default function LandingPage() {
             </section>
 
             {/* About Section */}
-            <section
-                id="about"
-                className="py-24 bg-gradient-to-b from-white to-indigo-50 dark:from-gray-950 dark:to-gray-900 text-center px-6"
-            >
-                <motion.h2
-                    className="text-3xl font-bold mb-6"
-                    initial={{ opacity: 0, y: 40 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                >
-                    Why LifeLedger?
-                </motion.h2>
-                <motion.p
-                    className="max-w-3xl mx-auto text-gray-600 dark:text-gray-400"
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    transition={{ delay: 0.2, duration: 0.6 }}
-                >
-                    <p>The future of productivity is private.</p>
-                    <p>LifeLedger gives you one powerful dashboard to manage everything — tasks, goals, and focus — with zero data tracking, zero clutter, and maximum motivation.</p>
-                </motion.p>
-            </section>
+<section
+  id="about"
+  className="relative overflow-hidden py-28 bg-gradient-to-b from-white to-indigo-50 dark:from-gray-950 dark:to-gray-900 text-center px-6"
+>
+  {/* Background Glow Effects */}
+  <div className="absolute inset-0 -z-10">
+    <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-indigo-300 dark:bg-indigo-700 opacity-20 blur-3xl rounded-full animate-pulse"></div>
+    <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-purple-300 dark:bg-purple-800 opacity-20 blur-3xl rounded-full animate-pulse delay-2000"></div>
+  </div>
+
+  {/* Floating Particles (optional aesthetic touch) */}
+  <div className="absolute inset-0 overflow-hidden -z-10">
+    {[...Array(15)].map((_, i) => (
+      <div
+        key={i}
+        className="absolute w-2 h-2 bg-indigo-400/50 dark:bg-indigo-500/40 rounded-full animate-float"
+        style={{
+          top: `${Math.random() * 100}%`,
+          left: `${Math.random() * 100}%`,
+          animationDelay: `${Math.random() * 5}s`,
+          animationDuration: `${4 + Math.random() * 4}s`,
+        }}
+      ></div>
+    ))}
+  </div>
+
+  {/* Title */}
+  <motion.h2
+    className="text-5xl font-extrabold mb-8 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-lg"
+    initial={{ opacity: 0, y: 50 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.8 }}
+  >
+    Why LifeLedger?
+  </motion.h2>
+
+  {/* Subtitle */}
+  <motion.p
+    className="max-w-3xl mx-auto text-gray-600 dark:text-gray-300 text-lg leading-relaxed"
+    initial={{ opacity: 0 }}
+    whileInView={{ opacity: 1 }}
+    transition={{ delay: 0.3, duration: 0.8 }}
+  >
+    <p className="mb-3 italic text-gray-500 dark:text-gray-400">Take Control. Stay Focused. Grow Freely...</p>
+    <p>
+      One dashboard. Infinite clarity. <br />
+      LifeLedger helps you track habits, set goals, and measure your growth — effortlessly. <br />
+      Designed for simplicity, built for focus. No data tracking, no distractions. <br />
+      Because your productivity should belong <span className="font-semibold text-indigo-500 dark:text-indigo-400">only to you.</span>
+    </p>
+  </motion.p>
+
+  {/* Feature Cards */}
+  <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+    {[
+      {
+        icon: "💡",
+        title: "Smart Insights",
+        text: "See your progress in elegant visuals that motivate real growth."
+      },
+      {
+        icon: "🧘",
+        title: "Calm & Minimal",
+        text: "No clutter. No chaos. Just clarity and focus on what truly matters."
+      },
+      {
+        icon: "🔒",
+        title: "100% Private",
+        text: "Your habits, your data — securely stored and never shared."
+      }
+    ].map((feature, index) => (
+      <motion.div
+        key={index}
+        className="group relative p-8 bg-white/10 dark:bg-gray-800/40 backdrop-blur-xl rounded-3xl border border-indigo-100 dark:border-gray-700 hover:shadow-2xl transition-all hover:scale-[1.03]"
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 + index * 0.2, duration: 0.7 }}
+      >
+        <div className="text-5xl mb-4 transition-transform group-hover:scale-110">
+          {feature.icon}
+        </div>
+        <h3 className="text-2xl font-semibold mb-2 text-indigo-600 dark:text-indigo-400">
+          {feature.title}
+        </h3>
+        <p className="text-gray-600 dark:text-gray-300">{feature.text}</p>
+
+        {/* subtle glow border */}
+        <div className="absolute inset-0 rounded-3xl border border-transparent bg-gradient-to-r from-indigo-400 to-purple-500 opacity-0 group-hover:opacity-30 blur-lg transition-all duration-700"></div>
+      </motion.div>
+    ))}
+  </div>
+
+  {/* Call to Action */}
+  <motion.div
+    className="mt-20"
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.6, duration: 0.8 }}
+  >
+  </motion.div>
+</section>
 
             {/* Footer */}
-            <footer className="py-10 bg-gray-100 dark:bg-gray-900 text-center text-gray-500 dark:text-gray-400 text-sm">
-                © {new Date().getFullYear()} Abhay Mishra. All rights reserved.
+            <footer id="contact" className="py-10 bg-gray-100 dark:bg-gray-900 text-center text-gray-600 dark:text-gray-400 text-sm border-t border-gray-200 dark:border-gray-800">
+                <div className="max-w-4xl mx-auto space-y-4">
+                    {/* Contact Section */}
+                    <div className="flex flex-col md:flex-row items-center justify-center gap-4 text-gray-600 dark:text-gray-400">
+                        <a
+                            href="mailto:abhay@example.com"
+                            className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400 transition"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="w-4 h-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={1.5}
+                                    d="M21.75 8.25l-9.75 6-9.75-6M3 6.75A2.25 2.25 0 015.25 4.5h13.5A2.25 2.25 0 0121 6.75v10.5A2.25 2.25 0 0118.75 19.5H5.25A2.25 2.25 0 013 17.25V6.75z"
+                                />
+                            </svg>
+                            abhaymishra77275@gmail.com
+                        </a>
+
+                        <span className="hidden md:inline text-gray-400">|</span>
+
+                        <a
+                            href="tel:+919876543210"
+                            className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400 transition"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="w-4 h-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={1.5}
+                                    d="M2.25 6.75c0-1.242 1.008-2.25 2.25-2.25h2.1a1.125 1.125 0 011.05.725l1.3 3.25a1.125 1.125 0 01-.25 1.175l-1.25 1.25a14.25 14.25 0 006.75 6.75l1.25-1.25a1.125 1.125 0 011.175-.25l3.25 1.3a1.125 1.125 0 01.725 1.05v2.1a2.25 2.25 0 01-2.25 2.25h-1.5C8.593 21 3 15.407 3 8.25v-1.5z"
+                                />
+                            </svg>
+                            +91 9999999999
+                        </a>
+
+                        <span className="hidden md:inline text-gray-400">|</span>
+
+                        {/* Social Links */}
+                        <div className="flex items-center gap-4 justify-center">
+                            <a
+                                href="https://github.com/abhaymishra07"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:text-blue-600 dark:hover:text-blue-400 transition"
+                            >
+                                <i className="lab la-github text-lg"></i> GitHub
+                            </a>
+                            {/* <a
+                                href="https://linkedin.com/in/abhaymishra"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:text-blue-600 dark:hover:text-blue-400 transition"
+                            >
+                                <i className="lab la-linkedin text-lg"></i> LinkedIn
+                            </a> */}
+                        </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="border-t border-gray-300 dark:border-gray-700 w-1/3 mx-auto"></div>
+
+                    {/* Copyright */}
+                    <p className="pt-2">
+                        © {new Date().getFullYear()} <span className="font-semibold text-gray-700 dark:text-gray-300">Abhay Mishra</span>. All rights reserved.
+                    </p>
+                </div>
             </footer>
+
         </div>
     );
 }

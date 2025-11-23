@@ -63,7 +63,7 @@ const AddDocument = () => {
             📄 Your Documents
           </h1>
           <div className="flex gap-3">
-            {/* <button
+            <button
               onClick={() => {
                 setShowUploadInput(!showUploadInput);
                 setShowLinkInput(false);
@@ -72,7 +72,7 @@ const AddDocument = () => {
             >
               <Upload className="w-5 h-5" />
               Upload File
-            </button> */}
+            </button>
 
             <button
               onClick={() => {
@@ -136,7 +136,10 @@ const AddDocument = () => {
             </button>
           </div>
         )}
-
+        <p class="px-4 py-2 bg-red-100 border border-red-300 text-red-700 font-semibold rounded-lg shadow-sm flex items-center gap-2">
+          <span class="text-red-600 text-lg">⚠️</span>
+          This feature is currently under maintenance. Please avoid using it for now, as your data may be cleared. Thank you for understanding!
+        </p>
         {/* Document List */}
         <div className="w-full space-y-3">
           {documents.length === 0 ? (
