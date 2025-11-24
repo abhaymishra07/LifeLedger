@@ -289,7 +289,7 @@ export default function LandingPage() {
                     {/* Contact Section */}
                     <div className="flex flex-col md:flex-row items-center justify-center gap-4 text-gray-600 dark:text-gray-400">
                         <a
-                            href="mailto:abhay@example.com"
+                            href="mailto:abhaymishra77275@gmail.com"
                             className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400 transition"
                         >
                             <svg
@@ -306,7 +306,7 @@ export default function LandingPage() {
                                     d="M21.75 8.25l-9.75 6-9.75-6M3 6.75A2.25 2.25 0 015.25 4.5h13.5A2.25 2.25 0 0121 6.75v10.5A2.25 2.25 0 0118.75 19.5H5.25A2.25 2.25 0 013 17.25V6.75z"
                                 />
                             </svg>
-                            abhaymishra77275@gmail.com
+                            support@lifeledger.com
                         </a>
 
                         <span className="hidden md:inline text-gray-400">|</span>
