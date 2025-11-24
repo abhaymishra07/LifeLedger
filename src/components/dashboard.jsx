@@ -83,33 +83,44 @@ const Dashboard = () => {
   return (
     <div className={`${darkMode ? "dark" : ""} min-h-screen transition-colors duration-500`}>
       <div className="bg-[#f7fbff] dark:bg-[#0f172a] flex flex-col min-h-screen">
-        {/* Header */}
-        <header className=" fixed top-0 left-0 w-full z-20 flex items-center justify-between px-8 py-3 bg-white dark:bg-gray-900 shadow-sm transition-colors backdrop-blur-lg bg-opacity-90">
 
-          <div>
-            <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400 flex items-center gap-2">
+
+
+        {/* Header */}
+        <header className="fixed top-0 left-0 w-full z-20 flex items-center justify-between 
+        px-4 sm:px-8 py-3 bg-white dark:bg-gray-900 shadow-sm transition-colors 
+backdrop-blur-lg bg-opacity-90">
+
+          {/* Left Section */}
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400 
+    flex items-center gap-2 truncate">
               Welcome {userData?.name || "User"}
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 text-sm">
+            <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm truncate">
               Track your progress and stay on top of your goals
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* Right Section */}
+          <div className="flex items-center gap-2 sm:gap-3 ml-2 sm:ml-4">
+
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full px-4 py-2 shadow-sm hover:shadow-md transition"
+              className="flex items-center gap-1 sm:gap-2 bg-white dark:bg-gray-800 
+      border border-gray-200 dark:border-gray-700 rounded-full px-3 py-1.5 
+      sm:px-4 sm:py-2 shadow-sm hover:shadow-md transition text-xs sm:text-sm"
             >
               {darkMode ? (
                 <>
                   <Sun className="w-4 h-4 text-yellow-400" />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">Light</span>
+                  <span className="hidden sm:inline text-gray-700 dark:text-gray-300">Light</span>
                 </>
               ) : (
                 <>
-                  <Moon className="w-4 h-4 text-gray-700" />
-                  <span className="text-sm text-gray-700">Dark</span>
+                  <Moon className="w-4 h-4 text-gray-700 dark:text-gray-300" />
+                  <span className="hidden sm:inline text-gray-700 dark:text-gray-300">Dark</span>
                 </>
               )}
             </button>
@@ -117,13 +128,22 @@ const Dashboard = () => {
             {/* Logout */}
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full px-4 py-2 shadow-sm hover:shadow-md transition hover:bg-red-500 dark:hover:bg-red-500"
+              className="flex items-center gap-1 sm:gap-2 bg-white dark:bg-gray-800 
+      border border-gray-200 dark:border-gray-700 rounded-full px-3 py-1.5 
+      sm:px-4 sm:py-2 shadow-sm hover:shadow-md transition hover:bg-red-500 
+      dark:hover:bg-red-500 text-xs sm:text-sm"
             >
               <LogOut className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Logout</span>
+              <span className="hidden sm:inline font-medium text-gray-700 dark:text-gray-300">
+                Logout
+              </span>
             </button>
           </div>
         </header>
+
+
+
+
 
         {/* Cards */}
         <main className="pt-[8rem] flex-1 px-6 py-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto w-full transition-colors">
@@ -182,13 +202,13 @@ const Dashboard = () => {
         </main>
       </div>
       <button
-  onClick={() => navigate("/suggestionPage")}
-  className="fixed bottom-6 right-6 backdrop-blur-md bg-blue-600/80 hover:bg-blue-700/90 
+        onClick={() => navigate("/suggestionPage")}
+        className="fixed bottom-6 right-6 backdrop-blur-md bg-blue-600/80 hover:bg-blue-700/90 
              text-white px-6 py-3 rounded-2xl shadow-xl transition-all 
              hover:scale-105 active:scale-95 z-30 flex items-center gap-2"
->
-  <span className="font-medium">Suggestion</span>
-</button>
+      >
+        <span className="font-medium">Suggestion</span>
+      </button>
 
     </div>
   );
