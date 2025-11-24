@@ -63,7 +63,7 @@ const AddDocument = () => {
           </h1>
 
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-            <button
+            {/* <button
               onClick={() => {
                 setShowUploadInput(!showUploadInput);
                 setShowLinkInput(false);
@@ -72,7 +72,7 @@ const AddDocument = () => {
             >
               <Upload className="w-5 h-5" />
               Upload File
-            </button>
+            </button> */}
 
             <button
               onClick={() => {
