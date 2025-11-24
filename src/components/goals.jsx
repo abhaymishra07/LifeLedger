@@ -27,19 +27,6 @@ import {
   CartesianGrid,
 } from "recharts";
 
-/**
- * FULL "MAX" goals component
- * - Drag & drop reordering (native HTML5 DnD)
- * - Subtasks inside each goal
- * - Achievement badges
- * - Percentage progress tracking
- * - LocalStorage persistence
- * - Dark / Light theme toggle (fixed text colors)
- * - Mini dashboard (pie + line + streak)
- * - Responsive for mobile/tablet/desktop
- *
- * Requires TailwindCSS + lucide-react + framer-motion + recharts
- */
 
 const LOCAL_KEY = "my_goals_v1";
 const THEME_KEY = "my_goals_theme_v1";
@@ -111,22 +98,6 @@ const goals = () => {
       console.warn("unable to save items", e);
     }
   }, [items]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(THEME_KEY, theme);
-    } catch (e) {
-      console.warn("unable to save theme", e);
-    }
-    // apply theme class to root
-    const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-  }, [theme]);
-
   useEffect(() => {
     try {
       localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
@@ -481,15 +452,8 @@ const goals = () => {
 
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
-                className="p-2 rounded-lg bg-white/80 dark:bg-gray-800/60 shadow"
-                title="Toggle theme"
-              >
-                {theme === "dark" ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-gray-700" />}
-              </button>
-              <button
                 onClick={() => setShowDashboard((s) => !s)}
-                className="px-3 py-2 rounded-lg bg-white/80 dark:bg-gray-800/60 shadow"
+                className="px-3 py-2 rounded-lg bg-white/80 dark:bg-gray-800/60 dark:text-gray-200 shadow"
                 title="Toggle dashboard"
               >
                 Dashboard
