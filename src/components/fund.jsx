@@ -127,7 +127,7 @@ const Fund = () => {
               Delete Transaction?
             </h2>
             <p className="text-gray-700 dark:text-gray-300 mb-4 text-sm">
-              This action cannot be undone.
+              Are you sure you want to delete this transaction ? This action cannot be undone.
             </p>
 
             <div className="flex justify-end gap-3">

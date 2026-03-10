@@ -189,17 +189,17 @@ const Auth = () => {
                          rounded-md w-full outline-none focus:ring-2 focus:ring-indigo-400 
                          text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
             />
-            {/* <button
+            <button
               type="submit"
               disabled={loading}
               className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs uppercase font-semibold px-6 py-2 rounded-md shadow-md transition mt-4 w-full"
             >
               {loading ? "Signing Up..." : "Sign Up"}
-            </button> */}
-            <p class="px-4 py-2 bg-red-100 border border-red-300 text-red-700 font-semibold rounded-lg shadow-sm flex items-center gap-2">
+            </button>
+            {/* <p class="px-4 py-2 bg-red-100 border border-red-300 text-red-700 font-semibold rounded-lg shadow-sm flex items-center gap-2">
               <span class="text-red-600 text-lg">⚠️</span>
               New registrations are temporarily paused. Thanks for your patience!
-            </p>
+            </p> */}
 
           </form>
         </div>
