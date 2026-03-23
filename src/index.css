@@ -21,3 +21,69 @@
     transform: translateX(100%);
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --success: 142.1 76.2% 36.3%;
+    --success-foreground: 355.7 100% 97.3%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 48 96% 89%;
+    --border: 214.3 31.8% 91.4%;
+  }
+
+  /* Refined, High-Contrast Dark Theme */
+  .dark {
+    --background: 224 71.4% 4.1%;        /* Deeper, truer dark background */
+    --foreground: 210 40% 98%;           /* Crisp white text globally */
+    --card: 215 27.9% 16.9%;             /* Elegant dark grey for cards to stand out */
+    --card-foreground: 210 40% 98%;      /* White text inside cards */
+    --primary: 217.2 91.2% 59.8%;        /* Vibrant primary blue */
+    --primary-foreground: 210 40% 98%;   /* 👈 FIX: Crisp white text for headers and blue buttons! */
+    --secondary: 217.2 32.6% 17.5%;      /* Inputs and secondary backgrounds */
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%; /* Readable muted/placeholder text */
+    --success: 142.1 70.6% 45.3%;        /* Bright green */
+    --success-foreground: 210 40% 98%;   
+    --destructive: 0 62.8% 50.6%;        /* Bright red */
+    --destructive-foreground: 210 40% 98%;
+    --warning: 48 96% 89%;               
+    --warning-foreground: 24.6 95% 53.1%;
+    --border: 217.2 32.6% 17.5%;
+  }
+}
