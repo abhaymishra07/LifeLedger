@@ -1,106 +1,117 @@
 import React, { useEffect, useState } from "react";
 import {
-  collection,
-  addDoc,
-  query,
-  where,
-  getDocs,
-  onSnapshot,
-  doc,
-  updateDoc,
-  deleteDoc,
+  collection, addDoc, query, where, getDocs,
+  onSnapshot, doc, updateDoc, deleteDoc,
 } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import HabitProgressChart from "./HabitProgressChart";
 import HabitOverviewChart from "./HabitOverviewChart";
+import { Plus, Trash2, CheckCheck, RotateCcw, Flame } from "lucide-react";
+
+/* ─── helpers ─── */
+const getTodayStr = () => new Date().toISOString().split("T")[0];
+
+const getWeekStartStr = () => {
+  const now = new Date();
+  const diff = now.getDate() - now.getDay();          // rewind to Sunday
+  const sun = new Date(now.setDate(diff));
+  sun.setHours(0, 0, 0, 0);
+  return sun.toISOString().split("T")[0];
+};
+
+// Returns 0‑6 index of today (0 = Sun … 6 = Sat)
+const todayIndex = () => new Date().getDay();
+
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+/* ─── auto-reset logic ─── */
+// 1. If week has rolled over (stored week < current week start) → wipe all days[]
+// 2. For any day index BEFORE today, if marked true but belongs to a previous date → unmark
+//    (we track this via habit.week: if week matches, only past days in THIS week are locked;
+//     they stay as recorded — we don't retroactively unmark past days within the same week.
+//     We DO reset the entire array when a new week starts.)
+const resetIfNeeded = async (uid) => {
+  const today = getTodayStr();
+  const weekStart = getWeekStartStr();
+
+  const q = query(collection(db, "habits"), where("userId", "==", uid));
+  const snapshot = await getDocs(q);
+
+  for (const docSnap of snapshot.docs) {
+    const data = docSnap.data();
+    const habitRef = doc(db, "habits", docSnap.id);
+    const updates = {};
+
+    // ── Rule 1: new week → reset all days ──
+    if (!data.week || data.week < weekStart) {
+      updates.week = weekStart;
+      updates.days = Array(7).fill(false);
+      updates.date = today;
+    }
+
+    // ── Rule 2: stale date within same week → ensure today's date is stored ──
+    if (!updates.date && data.date !== today) {
+      updates.date = today;
+    }
+
+    if (Object.keys(updates).length > 0) {
+      await updateDoc(habitRef, updates);
+    }
+  }
+};
+
+/* ────────────────────────────────────────────── */
 
 const HabitPage = () => {
   const [user, setUser] = useState(null);
   const [habits, setHabits] = useState([]);
   const [habitName, setHabitName] = useState("");
-
-  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-  const getWeekStart = () => {
-    const now = new Date();
-    const day = now.getDay();
-    const diff = now.getDate() - day;
-    const sunday = new Date(now.setDate(diff));
-    sunday.setHours(0, 0, 0, 0);
-    return sunday;
-  };
-
-  const getToday = () => new Date().toISOString().split("T")[0];
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const unsubscribeAuth = auth.onAuthStateChanged(async (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
+        await resetIfNeeded(currentUser.uid);
+
         const q = query(collection(db, "habits"), where("userId", "==", currentUser.uid));
-
         const unsubscribe = onSnapshot(q, (snapshot) => {
-          const data = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          setHabits(data);
+          setHabits(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
         });
-
-        await resetOldHabits(currentUser.uid);
         return () => unsubscribe();
       } else {
         setUser(null);
       }
     });
-
     return () => unsubscribeAuth();
   }, []);
 
-  const resetOldHabits = async (uid) => {
-    const today = getToday();
-    const q = query(collection(db, "habits"), where("userId", "==", uid));
-    const snapshot = await getDocs(q);
-
-    for (const docSnap of snapshot.docs) {
-      const data = docSnap.data();
-      const habitRef = doc(db, "habits", docSnap.id);
-
-      if (data.date < today) {
-        await updateDoc(habitRef, {
-          completed: false,
-          date: today,
-        });
-      }
-    }
-  };
-
   const handleAddHabit = async (e) => {
     e.preventDefault();
-    if (!habitName || !user) return alert("Please enter a habit name");
-
+    if (!habitName.trim() || !user) return;
     try {
       await addDoc(collection(db, "habits"), {
         name: habitName.trim(),
-        date: getToday(),
+        date: getTodayStr(),
         completed: false,
         userId: user.uid,
-        week: getWeekStart().toISOString().split("T")[0],
+        week: getWeekStartStr(),
         days: Array(7).fill(false),
       });
-
       setHabitName("");
     } catch (err) {
       console.error("Error adding habit:", err);
-      alert("Error adding habit. Check console for details.");
     }
   };
 
   const toggleDay = async (habitId, index, current) => {
+    // Only allow toggling today's column
+    if (index !== todayIndex()) return;
     try {
-      const habitRef = doc(db, "habits", habitId);
-      const updatedDays = Array.isArray(current) ? [...current] : Array(7).fill(false);
-      updatedDays[index] = !updatedDays[index];
-      await updateDoc(habitRef, { days: updatedDays });
+      const updated = Array.isArray(current) ? [...current] : Array(7).fill(false);
+      updated[index] = !updated[index];
+      await updateDoc(doc(db, "habits", habitId), { days: updated });
     } catch (err) {
       console.error("Error updating habit:", err);
     }
@@ -112,106 +123,274 @@ const HabitPage = () => {
     }
   };
 
+  const today = todayIndex();
+  const weekDone = habits.length > 0 && habits.every((h) => h.days?.[today]);
+
+  // Per-habit streak: consecutive days completed up to today
+  const getStreak = (days) => {
+    if (!Array.isArray(days)) return 0;
+    let streak = 0;
+    for (let i = today; i >= 0; i--) {
+      if (days[i]) streak++;
+      else break;
+    }
+    return streak;
+  };
+
   return (
-    <div className="p-6 space-y-6 min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-500">
-      <h2 className="text-2xl font-semibold text-center mb-4 text-gray-800 dark:text-gray-100">
-        🧘 Habit Tracker
-      </h2>
+    <div className="min-h-screen bg-[#f0f4fc] dark:bg-[#080c14] transition-colors duration-500 relative overflow-x-hidden">
 
-      <form
-        onSubmit={handleAddHabit}
-        className="flex flex-col sm:flex-row gap-3 justify-center items-center"
-      >
-        <input
-          type="text"
-          placeholder="Enter habit name"
-          value={habitName}
-          onChange={(e) => setHabitName(e.target.value)}
-          className="border p-2 rounded-lg w-64 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-        />
-        <button
-          type="submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
-        >
-          Add Habit
-        </button>
-      </form>
-
-      {/* 📋 Habit Table */}
-      <div className="max-w-6xl mx-auto bg-white dark:bg-gray-900 rounded-xl shadow-md overflow-hidden transition-colors duration-500">
-        <div className="overflow-y-auto max-h-[400px] relative">
-          <table className="min-w-[700px] w-full border-collapse">
-            <thead className="bg-gray-100 dark:bg-gray-800 sticky top-0 z-[5]">
-              <tr>
-                <th className="px-4 py-3 text-left font-semibold bg-white dark:bg-gray-900 sticky left-0 z-[2] text-gray-800 dark:text-gray-100">
-                  Habit
-                </th>
-                {days.map((day, idx) => (
-                  <th key={idx} className="px-4 py-3 font-semibold text-center text-gray-700 dark:text-gray-200">
-                    {day}
-                  </th>
-                ))}
-                <th className="px-4 py-3 text-center font-semibold text-gray-700 dark:text-gray-200">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {habits.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={days.length + 2}
-                    className="text-center py-4 text-gray-500 dark:text-gray-400"
-                  >
-                    No habits yet. Add one!
-                  </td>
-                </tr>
-              ) : (
-                habits.map((habit) => (
-                  <tr
-                    key={habit.id}
-                    className="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-                  >
-                    <td
-                      className="px-4 py-3 font-medium sticky left-0 bg-white dark:bg-gray-900 z-[1] text-gray-900 dark:text-gray-100"
-                      style={{ pointerEvents: "auto" }}
-                    >
-                      {habit.name}
-                    </td>
-                    {days.map((day, idx) => (
-                      <td key={idx} className="text-center px-4 py-2">
-                        <button
-                          onClick={() => toggleDay(habit.id, idx, habit.days)}
-                          className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                            habit.days?.[idx]
-                              ? "bg-green-500 text-white"
-                              : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
-                          }`}
-                        >
-                          {habit.days?.[idx] ? "Done" : "Mark"}
-                        </button>
-                      </td>
-                    ))}
-                    <td className="text-center">
-                      <button
-                        onClick={() => deleteHabit(habit.id)}
-                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm transition"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+      {/* Ambient orbs */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
+        <div className="absolute -top-24 -right-24 w-[400px] h-[400px] rounded-full bg-violet-500/10 dark:bg-violet-500/5 blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-[350px] h-[350px] rounded-full bg-teal-400/10 dark:bg-teal-400/5 blur-3xl" />
       </div>
 
-      {/* 📊 Charts */}
-      <div className="max-w-6xl mx-auto mt-10 space-y-10">
-        <HabitProgressChart habits={habits} />
-        <HabitOverviewChart habits={habits} />
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-8">
+
+        {/* ── Page Header ── */}
+        <div
+          className="transition-all duration-700"
+          style={{ opacity: mounted ? 1 : 0, transform: mounted ? "translateY(0)" : "translateY(-16px)" }}
+        >
+          <p className="text-xs font-bold tracking-[0.2em] uppercase text-violet-500 dark:text-violet-400 mb-1">
+            Weekly Tracker
+          </p>
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+            <h1 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white leading-none">
+              Habit Tracker
+            </h1>
+            {weekDone && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full
+                bg-emerald-100 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400
+                text-xs font-bold uppercase tracking-wider border border-emerald-200 dark:border-emerald-500/20">
+                <CheckCheck className="w-3.5 h-3.5" /> Today complete!
+              </span>
+            )}
+          </div>
+          <div className="mt-4 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-white/10 to-transparent" />
+        </div>
+
+        {/* ── Add Habit Form ── */}
+        <form
+          onSubmit={handleAddHabit}
+          className="flex flex-col sm:flex-row gap-3"
+          style={{
+            opacity: mounted ? 1 : 0,
+            transform: mounted ? "translateY(0)" : "translateY(12px)",
+            transition: "opacity 0.6s ease 100ms, transform 0.6s ease 100ms",
+          }}
+        >
+          <input
+            type="text"
+            placeholder="New habit name…"
+            value={habitName}
+            onChange={(e) => setHabitName(e.target.value)}
+            className="flex-1 px-4 py-3 rounded-xl
+              bg-white dark:bg-[#0e1420]
+              border border-gray-200 dark:border-white/10
+              text-gray-900 dark:text-gray-100
+              placeholder-gray-400 dark:placeholder-gray-600
+              focus:outline-none focus:ring-2 focus:ring-violet-400/50
+              transition text-sm"
+          />
+          <button
+            type="submit"
+            className="flex items-center gap-2 px-5 py-3 rounded-xl
+              bg-gradient-to-r from-violet-500 to-indigo-600
+              hover:from-violet-400 hover:to-indigo-500
+              text-white font-semibold text-sm
+              shadow-lg shadow-violet-500/25
+              hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+          >
+            <Plus className="w-4 h-4" />
+            Add Habit
+          </button>
+        </form>
+
+        {/* ── Habit Table Card ── */}
+        <div
+          className="bg-white dark:bg-[#0e1420] rounded-2xl
+            border border-gray-200/80 dark:border-white/5
+            shadow-sm overflow-hidden"
+          style={{
+            opacity: mounted ? 1 : 0,
+            transform: mounted ? "translateY(0)" : "translateY(16px)",
+            transition: "opacity 0.6s ease 200ms, transform 0.6s ease 200ms",
+          }}
+        >
+          {/* Table header strip */}
+          <div className="h-1 bg-gradient-to-r from-violet-500 via-indigo-500 to-blue-500" />
+
+          <div className="overflow-x-auto">
+            <table className="min-w-[640px] w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-50 dark:bg-white/[0.03]">
+                  <th className="px-5 py-3.5 text-left text-xs font-bold uppercase tracking-wider
+                    text-gray-500 dark:text-gray-500 sticky left-0 bg-gray-50 dark:bg-[#0e1420] z-10 min-w-[140px]">
+                    Habit
+                  </th>
+                  {DAYS.map((day, idx) => (
+                    <th key={idx} className={`px-3 py-3.5 text-center text-xs font-bold uppercase tracking-wider
+                      ${idx === today
+                        ? "text-violet-600 dark:text-violet-400"
+                        : "text-gray-400 dark:text-gray-600"}`}>
+                      <div className="flex flex-col items-center gap-0.5">
+                        {day}
+                        {idx === today && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-violet-500" />
+                        )}
+                      </div>
+                    </th>
+                  ))}
+                  <th className="px-4 py-3.5 text-center text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-600">
+                    Streak
+                  </th>
+                  <th className="px-4 py-3.5 text-center text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-600">
+                    Del
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-white/[0.04]">
+                {habits.length === 0 ? (
+                  <tr>
+                    <td colSpan={DAYS.length + 3}
+                      className="text-center py-12 text-gray-400 dark:text-gray-600 text-sm">
+                      <div className="flex flex-col items-center gap-2">
+                        <RotateCcw className="w-8 h-8 opacity-30" />
+                        No habits yet — add one above!
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  habits.map((habit, hi) => {
+                    const streak = getStreak(habit.days);
+                    return (
+                      <tr
+                        key={habit.id}
+                        className="group hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors duration-150"
+                        style={{
+                          opacity: mounted ? 1 : 0,
+                          transition: `opacity 0.4s ease ${300 + hi * 60}ms`,
+                        }}
+                      >
+                        {/* Habit name */}
+                        <td className="px-5 py-3.5 sticky left-0 bg-white dark:bg-[#0e1420]
+                          group-hover:bg-gray-50 dark:group-hover:bg-[#111827] z-10 transition-colors duration-150">
+                          <span className="font-semibold text-sm text-gray-800 dark:text-gray-100">
+                            {habit.name}
+                          </span>
+                        </td>
+
+                        {/* Day columns */}
+                        {DAYS.map((_, idx) => {
+                          const done = habit.days?.[idx] === true;
+                          const isToday = idx === today;
+                          const isPast = idx < today;
+                          const isFuture = idx > today;
+
+                          return (
+                            <td key={idx} className="px-3 py-3 text-center">
+                              <button
+                                onClick={() => toggleDay(habit.id, idx, habit.days)}
+                                disabled={!isToday}
+                                title={isFuture ? "Future day" : isPast ? (done ? "Completed" : "Missed") : "Click to toggle"}
+                                className={`
+                                  w-8 h-8 mx-auto rounded-lg text-xs font-bold transition-all duration-200 flex items-center justify-center
+                                  ${isToday && done
+                                    ? "bg-emerald-500 text-white shadow-md shadow-emerald-400/30 scale-110"
+                                    : isToday && !done
+                                    ? "bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-600 hover:bg-violet-100 dark:hover:bg-violet-500/15 hover:text-violet-600 dark:hover:text-violet-400 cursor-pointer"
+                                    : isPast && done
+                                    ? "bg-emerald-100 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-500"
+                                    : isPast && !done
+                                    ? "bg-red-50 dark:bg-red-500/10 text-red-300 dark:text-red-700"
+                                    : "bg-gray-50 dark:bg-white/[0.02] text-gray-200 dark:text-gray-800 cursor-not-allowed"
+                                  }
+                                `}
+                              >
+                                {done ? "✓" : isPast ? "✕" : isFuture ? "–" : "○"}
+                              </button>
+                            </td>
+                          );
+                        })}
+
+                        {/* Streak */}
+                        <td className="px-4 py-3 text-center">
+                          <span className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full
+                            ${streak > 0
+                              ? "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                              : "bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-600"}`}>
+                            <Flame className="w-3 h-3" />
+                            {streak}
+                          </span>
+                        </td>
+
+                        {/* Delete */}
+                        <td className="px-4 py-3 text-center">
+                          <button
+                            onClick={() => deleteHabit(habit.id)}
+                            className="w-7 h-7 rounded-lg flex items-center justify-center mx-auto
+                              text-gray-300 dark:text-gray-700
+                              hover:bg-red-50 dark:hover:bg-red-500/10
+                              hover:text-red-500 dark:hover:text-red-400
+                              transition-all duration-200"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* ── Week summary bar ── */}
+        {habits.length > 0 && (
+          <div
+            className="grid grid-cols-7 gap-2"
+            style={{
+              opacity: mounted ? 1 : 0,
+              transition: "opacity 0.6s ease 500ms",
+            }}
+          >
+            {DAYS.map((day, idx) => {
+              const doneCount = habits.filter((h) => h.days?.[idx]).length;
+              const pct = Math.round((doneCount / habits.length) * 100);
+              const isToday = idx === today;
+              return (
+                <div key={idx} className="flex flex-col items-center gap-1.5">
+                  <div className="w-full bg-gray-100 dark:bg-white/5 rounded-full h-1.5 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-700 ${
+                        isToday ? "bg-violet-500" : pct === 100 ? "bg-emerald-500" : "bg-gray-300 dark:bg-white/20"
+                      }`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                  <span className={`text-[10px] font-semibold ${isToday ? "text-violet-500 dark:text-violet-400" : "text-gray-400 dark:text-gray-600"}`}>
+                    {day}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* ── Charts ── */}
+        <div
+          className="space-y-8"
+          style={{
+            opacity: mounted ? 1 : 0,
+            transition: "opacity 0.6s ease 600ms",
+          }}
+        >
+          <HabitProgressChart habits={habits} />
+          <HabitOverviewChart habits={habits} />
+        </div>
       </div>
     </div>
   );
