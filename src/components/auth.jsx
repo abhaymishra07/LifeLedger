@@ -7,7 +7,9 @@ import {
   Lock,
   User,
   ArrowRight,
-  CheckCircle2
+  CheckCircle2,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { auth, db } from "../firebase";
 import {
@@ -24,6 +26,7 @@ export default function Auth() {
 
   // Unified Form State
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,7 +36,7 @@ export default function Auth() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // ✅ Unified Firebase Handler
+  // Unified Firebase Handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
@@ -55,10 +58,10 @@ export default function Auth() {
           formData.password
         );
         const user = userCredential.user;
-        
+
         // Update Firebase Auth Profile
         await updateProfile(user, { displayName: formData.name });
-        
+
         // Initialize Firestore Document for LifeLedger
         await setDoc(doc(db, "users", user.uid), {
           name: formData.name,
@@ -80,26 +83,26 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-300 font-sans selection:bg-blue-500/30 selection:text-blue-200 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-300 font-sans selection:bg-blue-200 selection:text-blue-900 dark:selection:bg-blue-500/30 dark:selection:text-blue-200 flex flex-col md:flex-row transition-colors duration-300">
 
       {/* LEFT SIDE - Branding & Graphic (Hidden on mobile) */}
-      <div className="hidden md:flex md:w-1/2 lg:w-5/12 bg-slate-900/30 border-r border-slate-800 relative flex-col justify-between p-12 overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full bg-blue-500/20 blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] rounded-full bg-indigo-600/10 blur-[100px] pointer-events-none" />
+      <div className="hidden md:flex md:w-1/2 lg:w-5/12 bg-white dark:bg-slate-900/30 border-r border-slate-200 dark:border-slate-800 relative flex-col justify-between p-12 overflow-hidden transition-colors duration-300">
+        <div className="absolute top-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full bg-blue-500/10 dark:bg-blue-500/20 blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] rounded-full bg-indigo-600/10 dark:bg-indigo-600/10 blur-[100px] pointer-events-none" />
 
-        <div className="relative z-10 flex items-center gap-2.5 font-bold text-xl text-white cursor-pointer">
+        <div className="relative z-10 flex items-center gap-2.5 font-bold text-xl text-slate-900 dark:text-white cursor-pointer transition-colors duration-300">
           <div className="p-1.5 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg shadow-[0_0_15px_rgba(59,130,246,0.3)]">
             <Wallet size={18} className="text-white" />
           </div>
           <span>
-            Life<span className="text-blue-400">Ledger</span>
+            Life<span className="text-blue-500 dark:text-blue-400">Ledger</span>
           </span>
         </div>
 
         <div className="relative z-10 mb-10">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white tracking-tight mb-6 leading-tight">
+          <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white tracking-tight mb-6 leading-tight transition-colors duration-300">
             Take control of your <br />
-            <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">life's portfolio.</span>
+            <span className="bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">life's portfolio.</span>
           </h2>
 
           <div className="space-y-5">
@@ -109,16 +112,16 @@ export default function Auth() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.1 + 0.2 }}
-                className="flex items-center gap-3 text-slate-400"
+                className="flex items-center gap-3 text-slate-600 dark:text-slate-400"
               >
-                <CheckCircle2 size={20} className="text-blue-400" />
+                <CheckCircle2 size={20} className="text-blue-500 dark:text-blue-400" />
                 <span>{feature}</span>
               </motion.div>
             ))}
           </div>
         </div>
 
-        <div className="relative z-10 text-sm text-slate-500">
+        <div className="relative z-10 text-sm text-slate-500 dark:text-slate-500">
           © {new Date().getFullYear()} LifeLedger. All rights reserved.
         </div>
       </div>
@@ -127,12 +130,12 @@ export default function Auth() {
       <div className="w-full md:w-1/2 lg:w-7/12 flex items-center justify-center p-6 py-12 sm:p-12 relative min-h-screen md:min-h-0">
         <div className="w-full max-w-md relative z-10">
 
-          <div className="md:hidden flex items-center gap-2.5 font-bold text-xl text-white mb-8">
+          <div className="md:hidden flex items-center gap-2.5 font-bold text-xl text-slate-900 dark:text-white mb-8 transition-colors duration-300">
             <div className="p-1.5 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg shadow-[0_0_15px_rgba(59,130,246,0.3)]">
               <Wallet size={18} className="text-white" />
             </div>
             <span>
-              Life<span className="text-blue-400">Ledger</span>
+              Life<span className="text-blue-500 dark:text-blue-400">Ledger</span>
             </span>
           </div>
 
@@ -141,10 +144,10 @@ export default function Auth() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-3xl font-bold text-white tracking-tight mb-2">
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-2 transition-colors duration-300">
               {isLogin ? "Welcome back" : "Create an account"}
             </h1>
-            <p className="text-slate-400 text-sm mb-6">
+            <p className="text-slate-500 dark:text-slate-400 text-sm mb-6 transition-colors duration-300">
               {isLogin
                 ? "Enter your credentials to access your dashboard."
                 : "Join to start tracking your funds, habits, and stocks."}
@@ -152,13 +155,16 @@ export default function Auth() {
 
             {/* Display Firebase Messages here */}
             {message && (
-              <div className={`mb-6 rounded-xl border p-4 ${isError ? 'border-red-500/20 bg-red-500/10' : 'border-blue-500/20 bg-blue-500/10'}`}>
-                <h3 className={`text-sm font-semibold mb-1 ${isError ? 'text-red-400' : 'text-blue-400'}`}>
-                  {isError ? 'Authentication Error' : 'Success'} : <div className="text-white text-lg inline-block ml-1">
-                    Life<span className="text-blue-400">Ledger</span>
+              <div className={`mb-6 rounded-xl border p-4 ${isError
+                  ? 'border-red-200 bg-red-50 dark:border-red-500/20 dark:bg-red-500/10'
+                  : 'border-blue-200 bg-blue-50 dark:border-blue-500/20 dark:bg-blue-500/10'
+                }`}>
+                <h3 className={`text-sm font-semibold mb-1 ${isError ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'}`}>
+                  {isError ? 'Authentication Error' : 'Success'} : <div className="text-slate-900 dark:text-white text-lg inline-block ml-1">
+                    Life<span className="text-blue-500 dark:text-blue-400">Ledger</span>
                   </div>
                 </h3>
-                <p className={`text-sm mb-2 ${isError ? 'text-red-300' : 'text-blue-300'}`}>
+                <p className={`text-sm mb-2 ${isError ? 'text-red-500 dark:text-red-300' : 'text-blue-500 dark:text-blue-300'}`}>
                   {message}
                 </p>
               </div>
@@ -174,9 +180,9 @@ export default function Auth() {
                     exit={{ opacity: 0, height: 0, y: -10 }}
                     transition={{ duration: 0.3, ease: "easeInOut" }}
                   >
-                    <label className="block text-sm font-medium text-slate-400 mb-1.5">Full Name</label>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-400 mb-1.5 transition-colors">Full Name</label>
                     <div className="relative group">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 group-focus-within:text-blue-400 transition-colors">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500 group-focus-within:text-blue-500 dark:group-focus-within:text-blue-400 transition-colors">
                         <User size={18} />
                       </div>
                       <input
@@ -186,7 +192,7 @@ export default function Auth() {
                         onChange={handleChange}
                         required={!isLogin}
                         placeholder="John Doe"
-                        className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                        className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                       />
                     </div>
                   </motion.div>
@@ -194,9 +200,9 @@ export default function Auth() {
               </AnimatePresence>
 
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1.5">Email Address</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-400 mb-1.5 transition-colors">Email Address</label>
                 <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 group-focus-within:text-blue-400 transition-colors">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500 group-focus-within:text-blue-500 dark:group-focus-within:text-blue-400 transition-colors">
                     <Mail size={18} />
                   </div>
                   <input
@@ -206,33 +212,44 @@ export default function Auth() {
                     onChange={handleChange}
                     required
                     placeholder="you@example.com"
-                    className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                    className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                   />
                 </div>
               </div>
 
               <div>
                 <div className="flex justify-between items-center mb-1.5">
-                  <label className="block text-sm font-medium text-slate-400">Password</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-400 transition-colors">Password</label>
                   {isLogin && (
-                    <a href="#" className="text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors">
+                    <button
+                      onClick={() => navigate("/forgotpassword")}
+                      className="text-xs font-medium text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors">
                       Forgot password?
-                    </a>
+                    </button>
+
                   )}
                 </div>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 group-focus-within:text-blue-400 transition-colors">
-                    <Lock size={18} />
-                  </div>
+                <div className="relative">
+                  {/* Left lock icon */}
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
+
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    required
                     placeholder="••••••••"
-                    className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                    className="w-full pl-10 pr-12 py-3 bg-white dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                   />
+
+                  {/* Toggle button */}
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-white transition"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
               </div>
 
@@ -245,16 +262,16 @@ export default function Auth() {
                         id="terms"
                         name="terms"
                         required
-                        className="w-4 h-4 cursor-pointer rounded border-gray-300 text-blue-600 focus:ring-blue-500 accent-blue-600 transition-colors"
+                        className="w-4 h-4 cursor-pointer rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 accent-blue-600 dark:accent-blue-500 transition-colors"
                       />
                     </div>
 
-                    <label htmlFor="terms" className="text-gray-600 cursor-pointer select-none leading-tight">
+                    <label htmlFor="terms" className="text-slate-600 dark:text-slate-400 cursor-pointer select-none leading-tight transition-colors">
                       I agree to the{" "}
                       <a
                         href="/terms"
                         rel="noopener noreferrer"
-                        className="font-medium text-blue-600 underline-offset-4 hover:text-blue-700 transition-colors"
+                        className="font-medium text-blue-600 dark:text-blue-500 underline-offset-4 hover:text-blue-700 dark:hover:text-blue-400 transition-colors"
                       >
                         Terms and Conditions
                       </a>
@@ -267,7 +284,7 @@ export default function Auth() {
                 disabled={isLoading}
                 whileHover={{ scale: isLoading ? 1 : 1.01 }}
                 whileTap={{ scale: isLoading ? 1 : 0.99 }}
-                className="w-full py-3.5 mt-4 rounded-xl bg-blue-600 text-white font-bold text-sm shadow-[0_0_20px_rgba(59,130,246,0.2)] hover:shadow-[0_0_25px_rgba(59,130,246,0.4)] transition-all flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full py-3.5 mt-4 rounded-xl bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white font-bold text-sm shadow-[0_0_20px_rgba(59,130,246,0.2)] hover:shadow-[0_0_25px_rgba(59,130,246,0.4)] transition-all flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isLoading ? "Please wait..." : (isLogin ? "Sign In" : "Create Account")}
                 {!isLoading && <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />}
@@ -276,16 +293,16 @@ export default function Auth() {
 
             {/* Divider */}
             <div className="flex items-center gap-4 my-8">
-              <div className="flex-1 h-px bg-slate-800"></div>
-              <span className="text-xs text-slate-500 font-medium uppercase tracking-wider">Or continue with</span>
-              <div className="flex-1 h-px bg-slate-800"></div>
+              <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800 transition-colors"></div>
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider transition-colors">Or continue with</span>
+              <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800 transition-colors"></div>
             </div>
 
             {/* Social Logins */}
             <div className="grid grid-cols-1 gap-4 mb-8">
               <button
                 onClick={() => setGoogleShowPopup(true)}
-                className="flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-sm font-medium">
+                className="flex items-center justify-center gap-2 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors text-sm font-medium">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                   <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
@@ -301,21 +318,21 @@ export default function Auth() {
                   onClick={() => setGoogleShowPopup(false)}
                 >
                   <div
-                    className="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center transform transition-all animate-in zoom-in-95 duration-300"
+                    className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center transform transition-all animate-in zoom-in-95 duration-300 border dark:border-slate-800"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors">
                       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Coming Soon</h2>
-                    <p className="text-gray-500 mb-6 leading-relaxed">
+                    <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2 transition-colors">Coming Soon</h2>
+                    <p className="text-slate-500 dark:text-slate-400 mb-6 leading-relaxed transition-colors">
                       We're currently engineering this feature. Stay tuned!
                     </p>
                     <button
                       onClick={() => setGoogleShowPopup(false)}
-                      className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95"
+                      className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-100 dark:shadow-none transition-all active:scale-95"
                     >
                       Got it, thanks!
                     </button>
@@ -325,15 +342,15 @@ export default function Auth() {
             </div>
 
             {/* Toggle State */}
-            <p className="text-center text-sm text-slate-400">
+            <p className="text-center text-sm text-slate-600 dark:text-slate-400 transition-colors">
               {isLogin ? "Don't have an account? " : "Already have an account? "}
               <button
                 onClick={() => {
                   setIsLogin(!isLogin);
-                  setMessage(""); 
+                  setMessage("");
                   setIsError(false);
                 }}
-                className="font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+                className="font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
               >
                 {isLogin ? "Sign up" : "Sign in"}
               </button>

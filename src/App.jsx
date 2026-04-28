@@ -14,6 +14,7 @@ import SuggestionPage from "./components/suggestionPage";
 import Terms from "./components/terms";
 import CookiePolicy from "./components/CookiePolicy";
 import CookieConsent from "./components/CookieConsent";
+import ForgotPassword from "./components/ForgotPassword";
 
 import { Moon, Sun } from "lucide-react";
 import { useDarkMode } from "./hooks/useDarkMode"; 
@@ -96,6 +97,7 @@ function App() {
           />
           <Route path="/terms" element={<Terms />} />
           <Route path="/cookies" element={<CookiePolicy />} />
+          <Route path="/forgotpassword" element={<ForgotPassword />} />
         </Routes>
       </Router>
       

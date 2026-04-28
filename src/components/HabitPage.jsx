@@ -3,7 +3,7 @@ import {
   collection, addDoc, query, where, getDocs,
   onSnapshot, doc, updateDoc, deleteDoc,
 } from "firebase/firestore";
-import { db, auth } from "../firebase";
+import { db, auth } from "../firebase"; // Adjust path if needed
 import HabitProgressChart from "./HabitProgressChart";
 import HabitOverviewChart from "./HabitOverviewChart";
 import { Plus, Trash2, CheckCheck, RotateCcw, Flame } from "lucide-react";
@@ -11,28 +11,34 @@ import { Plus, Trash2, CheckCheck, RotateCcw, Flame } from "lucide-react";
 /* ─── helpers ─── */
 const getTodayStr = () => new Date().toISOString().split("T")[0];
 
-const getWeekStartStr = () => {
+// Returns start of current month, e.g., "2026-04-01"
+const getMonthStartStr = () => {
   const now = new Date();
-  const diff = now.getDate() - now.getDay();          // rewind to Sunday
-  const sun = new Date(now.setDate(diff));
-  sun.setHours(0, 0, 0, 0);
-  return sun.toISOString().split("T")[0];
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  // Formatting safely to YYYY-MM-DD
+  const offset = monthStart.getTimezoneOffset() * 60000;
+  return new Date(monthStart.getTime() - offset).toISOString().split("T")[0];
 };
 
-// Returns 0‑6 index of today (0 = Sun … 6 = Sat)
-const todayIndex = () => new Date().getDay();
+// Returns number of days in the current month (28, 29, 30, 31)
+const getDaysInMonth = () => {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+};
 
-const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+// Returns current month name and year (e.g., "April 2026")
+const getCurrentMonthName = () => {
+  return new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+};
+
+// Returns 0-based index of today for arrays (0 = 1st, 30 = 31st)
+const todayIndex = () => new Date().getDate() - 1;
 
 /* ─── auto-reset logic ─── */
-// 1. If week has rolled over (stored week < current week start) → wipe all days[]
-// 2. For any day index BEFORE today, if marked true but belongs to a previous date → unmark
-//    (we track this via habit.week: if week matches, only past days in THIS week are locked;
-//     they stay as recorded — we don't retroactively unmark past days within the same week.
-//     We DO reset the entire array when a new week starts.)
 const resetIfNeeded = async (uid) => {
   const today = getTodayStr();
-  const weekStart = getWeekStartStr();
+  const monthStart = getMonthStartStr();
+  const daysInMonth = getDaysInMonth();
 
   const q = query(collection(db, "habits"), where("userId", "==", uid));
   const snapshot = await getDocs(q);
@@ -42,14 +48,14 @@ const resetIfNeeded = async (uid) => {
     const habitRef = doc(db, "habits", docSnap.id);
     const updates = {};
 
-    // ── Rule 1: new week → reset all days ──
-    if (!data.week || data.week < weekStart) {
-      updates.week = weekStart;
-      updates.days = Array(7).fill(false);
+    // ── Rule 1: new month OR migrating from old weekly structure → reset days ──
+    if (!data.month || data.month < monthStart || !data.days || data.days.length !== daysInMonth) {
+      updates.month = monthStart;
+      updates.days = Array(daysInMonth).fill(false);
       updates.date = today;
     }
 
-    // ── Rule 2: stale date within same week → ensure today's date is stored ──
+    // ── Rule 2: stale date within same month → ensure today's date is stored ──
     if (!updates.date && data.date !== today) {
       updates.date = today;
     }
@@ -67,6 +73,9 @@ const HabitPage = () => {
   const [habits, setHabits] = useState([]);
   const [habitName, setHabitName] = useState("");
   const [mounted, setMounted] = useState(false);
+
+  const daysInMonth = getDaysInMonth();
+  const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
   useEffect(() => {
     setMounted(true);
@@ -96,8 +105,8 @@ const HabitPage = () => {
         date: getTodayStr(),
         completed: false,
         userId: user.uid,
-        week: getWeekStartStr(),
-        days: Array(7).fill(false),
+        month: getMonthStartStr(),
+        days: Array(daysInMonth).fill(false),
       });
       setHabitName("");
     } catch (err) {
@@ -109,7 +118,7 @@ const HabitPage = () => {
     // Only allow toggling today's column
     if (index !== todayIndex()) return;
     try {
-      const updated = Array.isArray(current) ? [...current] : Array(7).fill(false);
+      const updated = Array.isArray(current) ? [...current] : Array(daysInMonth).fill(false);
       updated[index] = !updated[index];
       await updateDoc(doc(db, "habits", habitId), { days: updated });
     } catch (err) {
@@ -124,7 +133,7 @@ const HabitPage = () => {
   };
 
   const today = todayIndex();
-  const weekDone = habits.length > 0 && habits.every((h) => h.days?.[today]);
+  const allDoneToday = habits.length > 0 && habits.every((h) => h.days?.[today]);
 
   // Per-habit streak: consecutive days completed up to today
   const getStreak = (days) => {
@@ -154,13 +163,13 @@ const HabitPage = () => {
           style={{ opacity: mounted ? 1 : 0, transform: mounted ? "translateY(0)" : "translateY(-16px)" }}
         >
           <p className="text-xs font-bold tracking-[0.2em] uppercase text-violet-500 dark:text-violet-400 mb-1">
-            Weekly Tracker
+            Monthly Tracker
           </p>
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
             <h1 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white leading-none">
-              Habit Tracker
+              {getCurrentMonthName()}
             </h1>
-            {weekDone && (
+            {allDoneToday && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full
                 bg-emerald-100 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400
                 text-xs font-bold uppercase tracking-wider border border-emerald-200 dark:border-emerald-500/20">
@@ -222,21 +231,36 @@ const HabitPage = () => {
           {/* Table header strip */}
           <div className="h-1 bg-gradient-to-r from-violet-500 via-indigo-500 to-blue-500" />
 
-          <div className="overflow-x-auto">
-            <table className="min-w-[640px] w-full border-collapse">
+          {/* Added custom scrollbar class via Tailwind if you have one, or standard browser scroll */}
+          {/* <div className="overflow-x-auto pb-2"> */}
+          <div className="overflow-x-auto pb-2 
+  [scrollbar-width:thin] 
+  [scrollbar-color:#cbd5e1_#f1f5f9] 
+  dark:[scrollbar-color:#1f2937_#080c14] 
+  [&::-webkit-scrollbar]:h-2 
+  [&::-webkit-scrollbar-track]:rounded-full 
+  [&::-webkit-scrollbar-track]:bg-slate-100 
+  dark:[&::-webkit-scrollbar-track]:bg-[#080c14] 
+  [&::-webkit-scrollbar-thumb]:rounded-full 
+  [&::-webkit-scrollbar-thumb]:bg-slate-300 
+  dark:[&::-webkit-scrollbar-thumb]:bg-gray-800 
+  [&::-webkit-scrollbar-thumb:hover]:bg-slate-400 
+  dark:[&::-webkit-scrollbar-thumb:hover]:bg-gray-700"
+>
+            <table className="min-w-[1000px] w-full border-collapse">
               <thead>
                 <tr className="bg-gray-50 dark:bg-white/[0.03]">
                   <th className="px-5 py-3.5 text-left text-xs font-bold uppercase tracking-wider
-                    text-gray-500 dark:text-gray-500 sticky left-0 bg-gray-50 dark:bg-[#0e1420] z-10 min-w-[140px]">
+                    text-gray-500 dark:text-gray-500 sticky left-0 bg-gray-50 dark:bg-[#0e1420] z-10 min-w-[140px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] dark:shadow-black">
                     Habit
                   </th>
-                  {DAYS.map((day, idx) => (
-                    <th key={idx} className={`px-3 py-3.5 text-center text-xs font-bold uppercase tracking-wider
+                  {daysArray.map((dayNum, idx) => (
+                    <th key={idx} className={`px-1.5 py-3.5 text-center text-xs font-bold uppercase tracking-wider
                       ${idx === today
                         ? "text-violet-600 dark:text-violet-400"
                         : "text-gray-400 dark:text-gray-600"}`}>
-                      <div className="flex flex-col items-center gap-0.5">
-                        {day}
+                      <div className="flex flex-col items-center gap-0.5 min-w-[28px]">
+                        {dayNum}
                         {idx === today && (
                           <span className="w-1.5 h-1.5 rounded-full bg-violet-500" />
                         )}
@@ -254,7 +278,7 @@ const HabitPage = () => {
               <tbody className="divide-y divide-gray-100 dark:divide-white/[0.04]">
                 {habits.length === 0 ? (
                   <tr>
-                    <td colSpan={DAYS.length + 3}
+                    <td colSpan={daysInMonth + 3}
                       className="text-center py-12 text-gray-400 dark:text-gray-600 text-sm">
                       <div className="flex flex-col items-center gap-2">
                         <RotateCcw className="w-8 h-8 opacity-30" />
@@ -276,27 +300,27 @@ const HabitPage = () => {
                       >
                         {/* Habit name */}
                         <td className="px-5 py-3.5 sticky left-0 bg-white dark:bg-[#0e1420]
-                          group-hover:bg-gray-50 dark:group-hover:bg-[#111827] z-10 transition-colors duration-150">
+                          group-hover:bg-gray-50 dark:group-hover:bg-[#111827] z-10 transition-colors duration-150 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] dark:shadow-black">
                           <span className="font-semibold text-sm text-gray-800 dark:text-gray-100">
                             {habit.name}
                           </span>
                         </td>
 
                         {/* Day columns */}
-                        {DAYS.map((_, idx) => {
+                        {daysArray.map((_, idx) => {
                           const done = habit.days?.[idx] === true;
                           const isToday = idx === today;
                           const isPast = idx < today;
                           const isFuture = idx > today;
 
                           return (
-                            <td key={idx} className="px-3 py-3 text-center">
+                            <td key={idx} className="px-1 py-3 text-center">
                               <button
                                 onClick={() => toggleDay(habit.id, idx, habit.days)}
                                 disabled={!isToday}
                                 title={isFuture ? "Future day" : isPast ? (done ? "Completed" : "Missed") : "Click to toggle"}
                                 className={`
-                                  w-8 h-8 mx-auto rounded-lg text-xs font-bold transition-all duration-200 flex items-center justify-center
+                                  w-7 h-7 mx-auto rounded-md text-xs font-bold transition-all duration-200 flex items-center justify-center
                                   ${isToday && done
                                     ? "bg-emerald-500 text-white shadow-md shadow-emerald-400/30 scale-110"
                                     : isToday && !done
@@ -348,22 +372,23 @@ const HabitPage = () => {
           </div>
         </div>
 
-        {/* ── Week summary bar ── */}
+        {/* ── Month summary bar ── */}
         {habits.length > 0 && (
           <div
-            className="grid grid-cols-7 gap-2"
+            className="grid gap-1 sm:gap-2"
             style={{
               opacity: mounted ? 1 : 0,
               transition: "opacity 0.6s ease 500ms",
+              gridTemplateColumns: `repeat(${daysInMonth}, minmax(0, 1fr))`,
             }}
           >
-            {DAYS.map((day, idx) => {
+            {daysArray.map((dayNum, idx) => {
               const doneCount = habits.filter((h) => h.days?.[idx]).length;
-              const pct = Math.round((doneCount / habits.length) * 100);
+              const pct = Math.round((doneCount / habits.length) * 100) || 0;
               const isToday = idx === today;
               return (
-                <div key={idx} className="flex flex-col items-center gap-1.5">
-                  <div className="w-full bg-gray-100 dark:bg-white/5 rounded-full h-1.5 overflow-hidden">
+                <div key={idx} className="flex flex-col items-center gap-1">
+                  <div className="w-full bg-gray-100 dark:bg-white/5 rounded-full h-1 sm:h-1.5 overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-700 ${
                         isToday ? "bg-violet-500" : pct === 100 ? "bg-emerald-500" : "bg-gray-300 dark:bg-white/20"
@@ -371,8 +396,9 @@ const HabitPage = () => {
                       style={{ width: `${pct}%` }}
                     />
                   </div>
-                  <span className={`text-[10px] font-semibold ${isToday ? "text-violet-500 dark:text-violet-400" : "text-gray-400 dark:text-gray-600"}`}>
-                    {day}
+                  {/* Optional: Only show every 5th day label on small screens to avoid crowding */}
+                  <span className={`text-[9px] sm:text-[10px] font-semibold ${isToday ? "text-violet-500 dark:text-violet-400" : "text-gray-400 dark:text-gray-600 hidden sm:block"}`}>
+                    {dayNum}
                   </span>
                 </div>
               );
