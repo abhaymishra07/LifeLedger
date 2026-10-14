@@ -9,7 +9,8 @@ import {
   ArrowRight,
   CheckCircle2,
   Eye,
-  EyeOff
+  EyeOff,
+  Play
 } from "lucide-react";
 import { auth, db } from "../firebase";
 import {
@@ -280,15 +281,49 @@ export default function Auth() {
                 </div>
               )}
 
-              <motion.button
-                disabled={isLoading}
-                whileHover={{ scale: isLoading ? 1 : 1.01 }}
-                whileTap={{ scale: isLoading ? 1 : 0.99 }}
-                className="w-full py-3.5 mt-4 rounded-xl bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white font-bold text-sm shadow-[0_0_20px_rgba(59,130,246,0.2)] hover:shadow-[0_0_25px_rgba(59,130,246,0.4)] transition-all flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed"
-              >
-                {isLoading ? "Please wait..." : (isLogin ? "Sign In" : "Create Account")}
-                {!isLoading && <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />}
-              </motion.button>
+              {/* Login: Sign In (70%) + Try Demo (30%) side by side */}
+              {isLogin && (
+                <div className="flex items-center gap-2.5 mt-4">
+                  <motion.button
+                    disabled={isLoading}
+                    whileHover={{ scale: isLoading ? 1 : 1.01 }}
+                    whileTap={{ scale: isLoading ? 1 : 0.99 }}
+                    className="w-[70%] py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white font-bold text-sm shadow-[0_0_20px_rgba(59,130,246,0.2)] hover:shadow-[0_0_25px_rgba(59,130,246,0.4)] transition-all flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? "Please wait..." : "Sign In"}
+                    {!isLoading && <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />}
+                  </motion.button>
+
+                  <motion.button
+                    type="button"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        email: "a@gmail.com",
+                        password: "123456",
+                      }))
+                    }
+                    className="w-[30%] py-3.5 rounded-xl border border-dashed border-blue-400 dark:border-blue-500/60 bg-blue-50/60 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 font-medium text-xs transition-all flex items-center justify-center gap-1.5"
+                  >
+                    <Play size={13} className="fill-current" /> Try Demo
+                  </motion.button>
+                </div>
+              )}
+
+              {/* Signup: full-width Create Account button */}
+              {!isLogin && (
+                <motion.button
+                  disabled={isLoading}
+                  whileHover={{ scale: isLoading ? 1 : 1.01 }}
+                  whileTap={{ scale: isLoading ? 1 : 0.99 }}
+                  className="w-full py-3.5 mt-4 rounded-xl bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white font-bold text-sm shadow-[0_0_20px_rgba(59,130,246,0.2)] hover:shadow-[0_0_25px_rgba(59,130,246,0.4)] transition-all flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? "Please wait..." : "Create Account"}
+                  {!isLoading && <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />}
+                </motion.button>
+              )}
             </form>
 
             {/* Divider */}
